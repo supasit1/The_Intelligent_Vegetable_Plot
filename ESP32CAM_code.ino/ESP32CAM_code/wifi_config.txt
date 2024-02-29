@@ -1,0 +1,34 @@
+import pandas as pd
+df = pd.read_csv('https://raw.githubusercontent.com/PyThaiNLP/thai-sentiment-analysis-dataset/master/review_shopping.csv', names=['text', 'label'], sep='\t',header=None)
+df
+df['label'].value_counts().plot.bar()
+!pip install pythainlp
+from pythainlp import word_tokenize
+text = "ทำการตัดคำภาษาไทย ลบคำหยุด และกำจัดเครื่องหมายวรรคตอน โดยใช้ pythainlp"
+final = word_tokenize(text)           ## tokenization of words
+print(final)
+from pythainlp import word_tokenize
+
+def text_process(text):                                                                      ###  split word and text preprocessing
+    final = "".join(u for u in text if u not in ("?", ".", ";", ":", "!", '"', "ๆ", "ฯ"))    ###   remove symbols
+    final = word_tokenize(final)
+    final = " ".join(word for word in final)
+    final = " ".join(word for word in final.split()
+                     if word.lower not in thai_stopwords)
+    return final
+
+df['text_tokens'] = df['text'].apply(text_process)
+df
+from sklearn.feature_extraction.text import CountVectorizer
+
+documents = df['text_tokens'].values.tolist()        ## get document tokens
+y_label = df['label'].values.tolist()                ## get label vector
+## create vocab of theses documents
+count_vector = CountVectorizer()                     ## text tokenization lib
+count_vector.fit(documents)                          ## build vocab from documents
+count_vector.vocabulary_                             ## get vocab.
+doc_array = count_vector.transform(documents).toarray()    ## document parsing all the documents into binary document vectors
+print(documents[1], ' -> ', doc_array[1])
+from sklearn.naive_bayes import BernoulliNB           ## Bernoulli Naive Bayes
+สร้างโมเดล Benoulli Naive Bayes ด้วยชุดข้อความรีวิวจาก train data ,ทดสอบความแม่นยำของโมเดล ด้วยชุดข้อมูลทดสอบที่แบ่งไว้ 20 %
+

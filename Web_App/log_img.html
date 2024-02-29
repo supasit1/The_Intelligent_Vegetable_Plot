@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="styletable.css">
+    <script src="log_img.js" type="module"></script>
+    <title>Log img</title>
+</head>
+<body>
+  <h1>รายการภาพ</h1>
+  <div id="imageList"></div>
+  <div class="cards">
+    <div class="card" id="table-container">
+      <table id="readings-table">
+          <thead>
+            <tr id="theader">
+              <th>รูปที่</th>
+              <th>ชื่อไฟล์</th>
+              <th>รูป</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+          </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="pagination">
+    <button id="prevPage">Previous Page</button>
+    <span id="currentPage"></span> / <span id="totalPages"></span>
+    <button id="nextPage">Next Page</button>
+  </div>
+  <button id="mainbtn">Main</button>
+</body>
+</html>
+

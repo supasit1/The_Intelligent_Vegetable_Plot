@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="./index.js" type="module"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preset</title>
+</head>
+<body>
+    <h1>The Intelligent Vegetable Plot Preset</h1>
+    <label for="veget" style="font-size: 16px;">เลือกผักที่จะปลูก:</label>
+    <select name="veget" id="veget">
+        <option value="">กรุณาเลือกผัก</option>
+        <option value="Sun">ต้นอ่อนทานตะวัน</option>
+        <option value="coriander">ผักชี </option>
+        <option value="lettuce">ผักกาดหอม</option>
+        <option value="morningglory ">ผักบุ้งจีน</option>
+    </select><br>
+    <label>คำอธิบาย:</label><p id="description"></p>
+    <label>ค่าความชื้นในดินที่ต้องการกำหนด:</label>
+    <input type="number" id="soil"  min="0" max="100"><br>
+    <label>ค่าแสงที่ต้องการกำหนด:</label>
+    <input type="number" id="lux"  min="0" max="9999"><br>
+    <label >ช่วงเวลารดน้ำครั้งที่ 1</label>
+    <label >ชั่วโมง:</label>
+    <input type="number" id="t1_hour" name="hour" min="1" max="24">
+    <label for="minute">นาที:</label>
+    <input type="number" id="t1_minute" name="minute" min="0" max="59"><br>
+    <label>ช่วงเวลารดน้ำครั้งที่ 2</label>
+    <label>ชั่วโมง:</label>
+    <input type="number" id="t2_hour" name="hour" min="1" max="24">
+    <label>นาที:</label>
+    <input type="number" id="t2_minute" name="minute" min="0" max="59"><br>
+    <button id="confirm">ยืนยัน</button><br><br>
+    <button id="logdatabtn">Log data</button>
+</body>
+</html>

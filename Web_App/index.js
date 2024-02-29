@@ -1,0 +1,196 @@
+import firebaseConfig from './auth_firebase.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase,ref,set,get} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getFirestore, getDoc, getDocs,collection,doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+const firestore  = getFirestore(app);
+const FirstcheckRef = ref(database, 'users/Firstcheck/value'); 
+get(FirstcheckRef).then((snapshot)=>{
+  const firstcheckValue = snapshot.val();
+  console.log('firstcheckValue get= ',firstcheckValue);
+  if (firstcheckValue === "1") {
+    window.location.href = 'main.html';
+  }
+
+})
+  const selectElement = document.getElementById('veget');
+  const t1_hour = document.getElementById('t1_hour');
+  const t1_minute = document.getElementById('t1_minute');
+  const t2_hour = document.getElementById('t2_hour');
+  const t2_minute = document.getElementById('t2_minute');
+  const confirmButton = document.getElementById('confirm');
+  const description = document.getElementById('description');
+  const lux = document.getElementById('lux');
+  const soil = document.getElementById('soil');
+  var logdatabtn = document.getElementById('logdatabtn');
+  var selectedValue = "";
+  var soiledit;
+  var luxedit;
+  var t1_houredit;
+  var t2_houredit;
+  var t1_minuteedit;
+  var t2_minuteedit;
+  selectElement.addEventListener('change', async (event) => {
+    // รับค่าที่ถูกเลือกจาก select
+    selectedValue = event.target.value;
+    async function getPresetdata(){
+      const vegetCol = collection(firestore, 'Preset');
+      const vegetSnap = await getDocs(vegetCol);
+      return vegetSnap.docs.map(doc => doc.id); // รีเทิร์นเฉพาะ Document ID
+    }
+
+    const presetdata = await getPresetdata(firestore);
+    if (presetdata.includes(selectedValue)) {
+      showdata(selectedValue);
+    }
+    return selectedValue;
+  });
+
+  var data
+  async function showdata(docId) {
+    const docRef = doc(firestore, 'Preset', docId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      data = docSnap.data();
+      description.innerText = data.description;
+      soil.value = data.soilmoisture;
+      lux.value = data.lux
+      t1_hour.value = data.time1_h;
+      t1_minute.value = data.time1_m;
+      t2_hour.value = data.time2_h;
+      t2_minute.value = data.time2_m;
+    } else {
+      console.log('Document does not exist!');
+    }
+  }
+  
+  function SetToRDB(){
+    const Time1Ref = ref(database, 'users/Time1');
+    const Time2Ref = ref(database, 'users/Time2');
+    const PumpstatusRef=ref(database, 'users/PumpStatus');
+    const lightstatusRef=ref(database, 'users/LightStatus');
+    const vegetnameRef = ref(database, 'users/Vegetable');
+    const soilRef = ref(database, 'users/MoistureThreshold');
+    const luxRef = ref(database, 'users/LuxThreshold');
+    var vegetname;
+    if(selectedValue=== "Sun"){
+      vegetname ={name:"ต้นอ่อนทานตะวัน"}
+      console.log("vegetname ",vegetname);
+    }
+    else if(selectedValue=== "coriander"){
+      vegetname ={name:"ผักชี"}
+      console.log("vegetname ",vegetname);
+    }
+    else if(selectedValue=== "lettuce"){
+      vegetname ={name:"ผักกาดหอม"}
+      console.log("vegetname ",vegetname);
+    }
+    else if(selectedValue=== "morningglory "){
+      vegetname ={name:"ผักบุ้งจีน"}
+      console.log("vegetname ",vegetname);
+    }
+    // กำหนดค่าข้อมูลในโหนดที่ต้องการ
+    const time1Data = {
+      hour: parseInt(t1_hour.value, 10),
+      minute: parseInt(t1_minute.value, 10)
+  };
+  const time2Data = {
+      hour: parseInt(t2_hour.value, 10),
+      minute: parseInt(t2_minute.value, 10)
+  };
+  const lightstatus = {value:"1"};
+  const pumpstatus ={value:"1"};
+  const soilRDB = { value: parseInt(soil.value, 10) }; 
+  const luxRDB = { value: parseInt(lux.value, 10) }; 
+  set(soilRef,soilRDB);
+  set(luxRef,luxRDB);
+  set(vegetnameRef, vegetname);
+  set(PumpstatusRef, pumpstatus);
+  set(lightstatusRef, lightstatus);
+  set(Time1Ref, time1Data);
+  set(Time2Ref, time2Data);
+  set(FirstcheckRef, "1");
+  window.location.href = 'main.html';
+  // บันทึกข้อมูลลงใน Realtime database
+    
+}
+// soil.value = data.soilmoisture;
+// lux.value = data.lux
+// t1_hour.value = data.time1_h;
+// t1_minute.value = data.time1_m;
+// t2_hour.value = data.time2_h;
+// t2_minute.value = data.time2_m;
+soil.onchange = function() {
+  if(this.value===""){
+    alert("ห้ามใส่ค่าว่าง");
+    this.value = data.soilmoisture;
+  }
+};
+lux.onchange = function() {
+  if(this.value===""){
+    alert("ห้ามใส่ค่าว่าง");
+    this.value =  data.lux;
+  }
+};
+t1_minute.onchange = function() {
+  var minute = parseInt(this.value);
+  if (minute > 59) {
+      alert("ชั่วโมงต้องไม่เกิน 60");
+      this.value =  data.time1_m; // เคลียร์ค่าที่ผู้ใช้ป้อน
+  }
+  if(this.value===""){
+    alert("ห้ามใส่ค่าว่าง");
+    this.value = data.time1_m;
+  }
+};
+t2_minute.onchange = function() {
+  var minute = parseInt(this.value);
+  if (minute > 59) {
+      alert("ชั่วโมงต้องไม่เกิน 60");
+      this.value = data.time2_m; // เคลียร์ค่าที่ผู้ใช้ป้อน
+  }
+  if(this.value===""){
+    alert("ห้ามใส่ค่าว่าง");
+    this.value = data.time2_m;
+  }
+};
+t1_hour.onchange = function() {
+  var hour = parseInt(this.value);
+  if (hour > 23) {
+      alert("ชั่วโมงต้องไม่เกิน 23");
+      this.value = data.time1_h; // เคลียร์ค่าที่ผู้ใช้ป้อน
+  }
+  if(this.value===""){
+    alert("ห้ามใส่ค่าว่าง");
+    this.value = data.time1_h;
+  }
+};
+t2_hour.onchange = function() {
+  var hour = parseInt(this.value);
+  if (hour > 23) {
+      alert("ชั่วโมงต้องไม่เกิน 23");
+      this.value = data.time2_h; // เคลียร์ค่าที่ผู้ใช้ป้อน
+  }
+  if(this.value===""){
+    alert("ห้ามใส่ค่าว่าง");
+    this.value = data.time2_h;
+  }
+};
+  confirmButton.addEventListener('click', (e) =>{
+    if(selectedValue === ""){
+      alert("กรุณาเลือกผักที่ต้องการปลูก");
+    }
+    else{
+      if (confirm("คุณแน่ใจหรือไม่ที่ต้องการยืนยันการปลูก?")) {
+        SetToRDB();
+      } 
+      else {
+          // ไม่ต้องดำเนินการใดๆ
+      }
+    }
+});
+
+logdatabtn.addEventListener('click', (e) =>{
+  window.location.href = 'log_data.html';
+});

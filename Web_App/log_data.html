@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="log_data.js" type="module"></script>
+    <link rel="stylesheet" type="text/css" href="styletable.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <title>Log Data</title>
+</head>
+<body>
+    <!--BUTTONS TO HANDLE DATA-->
+    <p>
+        <!--View data button-->
+        <button id="view-data-button">View all data</button>
+        <!--Hide data button-->
+        <button id="download-button">download data</button>
+        <button id="delete-button">delete all data</button>
+        <button id="maintbn">back to main</button>
+        
+    </p>
+     <!--TABLE WITH ALL DATA-->
+     <div class ="cards">
+        <div class="card" id="table-container"  >
+          <table id="readings-table">
+              <tr id="theader">
+                <th>Timestamp</th>
+                <th>Temperature (ºC)</th>
+                <th>Humidity (%)</th>
+                <th>Lux </th>
+                <th>Soilmoisture(%)</th>
+              </tr>
+              <tbody id="tbody" >
+              </tbody>
+          </table>
+        </div>
+      </div>
+      <p id="notierr"></p>
+</body>
+</html>

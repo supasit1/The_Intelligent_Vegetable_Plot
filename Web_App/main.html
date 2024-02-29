@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>main</title>
+    <script src="main.js" type="module"></script>
+    <title>Main</title>
+</head>
+<body>
+    <center>
+    <div>
+        <h1>The Intelligent Vegetable Plot</h1>
+        <h3 id="vegetname"></h3>
+        <img id="image" src="" alt="Firebase Image" height="500 px"><br>
+        <h3><span >เวลารดน้ำครั้งที่ 1</span><span style="padding-left: 10%;">เวลารดน้ำครั้งที่ 2 </span></h3>
+        <h3><span id="t1" style="padding-right: 50px"></span> <span id="t2" style="padding-left: 10%;"></span></h3>
+        <h3>Humidity = <span id="humidity"></span></h3>
+        <h3>Temperature = <span id="temperature"></span></h3>
+        <h3>Lux = <span id="lux"></span></h3>
+        <h3>Soilmoisture = <span id="soilmoisture"></span></h3>
+        <button id="pumpButton"></button>
+        <button id="lightButton"></button>
+        <button id="logdatabtn">Log data</button>
+        <button id="logimgbtn">Log image</button><br>
+        <button id="editbtn">Edit Time</button>
+        <button id="complete">เสร็จสิ้นการปลูก</button>
+        <div id="edit-time" style="display: none;">
+            <label >เวลารดน้ำครั้งที่ 1</label>
+            <label >ชั่วโมง:</label>
+            <input type="number" id="t1_hour" name="hour" min="1" max="23">
+            <label for="minute">นาที:</label>
+            <input type="number" id="t1_minute" name="minute" min="0" max="59"><br>
+            <label>เวลารดน้ำครั้งที่ 2</label>
+            <label>ชั่วโมง:</label>
+            <input type="number" id="t2_hour" name="hour" min="1" max="23">
+            <label>นาที:</label>
+            <input type="number" id="t2_minute" name="minute" min="0" max="59"><br>
+            <label>ค่าความชื้นในดินที่ต้องการกำหนด:</label>
+            <input type="number" id="soiledit"  min="0" max="100"><br>
+            <label>ค่าแสงที่ต้องการกำหนด:</label>
+            <input type="number" id="luxedit"  min="0" max="9999"><br>
+            <button id="savebtn">Save</button>
+            <button id="cancelbtn">Cancel</button>
+        </div>
+        
+    </div> 
+    </center>
+</body>
+</html>
