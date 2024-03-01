@@ -22,10 +22,10 @@
 #define API_KEY "AIzaSyBg-VCiyYgtsqYAViFtxjD6lQmjLHSFdi8"
 #define USER_EMAIL "s6304062636286@email.kmutnb.ac.th"
 #define USER_PASSWORD "0923753720cs"
-
+// #define USERID "J9cXVBN6KpOgwkdUBPKf5nQsSpJ2"
 DHTesp dht;
 Ticker tempTicker;
-FirebaseData fbdo;
+FirebaseData fbdo,fdbo_sut1h,fdbo_sut1m,fdbo_sut2h,fdbo_sut2m,fdbo_susoilt,fdbo_suluxt,fdbo_suls,fdbo_sups,fdbo_sdfc;
 FirebaseAuth auth;
 FirebaseConfig config;
 AsyncWebServer server(80);
@@ -62,86 +62,93 @@ struct usertime{
 };
 usertime time1,time2;
 int timestamp;
-int Time_i= 15; // 25 ส่งทุก 4 นาที 
+int Time_i= 12; // ส่งทุก 1 นาที 
 String first_check ="0";
+
 void Firebase_SET(){
-  //Temperature
-  if (Firebase.RTDB.setFloat(&fbdo, "Data/Temperature", temperature)){
-    Serial.printf("PASSED temperature: %.2f\n", temperature);
-  }
-  else {
-    Serial.println(fbdo.errorReason());
-    if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
-      Serial.println("Attempting to reconnect to Firebase...");
-      Firebase.reconnectWiFi(true);
+  if (Firebase.ready() && (millis() - sendDataPrevMillis > 5000 || sendDataPrevMillis == 0)){
+    sendDataPrevMillis = millis();
+    Time_i++;
+    Serial.printf(" Time_i: %d\n",Time_i);
+    //Temperature
+    if (Firebase.RTDB.setFloat(&fbdo, "Data/Temperature", temperature)){
+      Serial.printf("PASSED temperature: %.2f\n", temperature);
     }
-  }
-  //Humidity
-  if (Firebase.RTDB.setFloat(&fbdo, "Data/Humidity", humidity)){
-    Serial.printf("PASSED humidity: %.2f\n",humidity);
-  }
-  else {
-    Serial.println(fbdo.errorReason());
-    if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
-     Firebase.reconnectWiFi(true); 
+    else {
+      Serial.println(fbdo.errorReason());
+      if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
+        Serial.println("Attempting to reconnect to Firebase...");
+        Firebase.reconnectWiFi(true);
+      }
     }
-  }
-  //soilMoisture
-  if (Firebase.RTDB.setFloat(&fbdo, "Data/Soilmoisture", soilMoisture)){
-    Serial.printf("PASSED soilMoisture: %.2f\n",soilMoisture);
-  }
-  else {
-    Serial.println(fbdo.errorReason());
-    if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
-      Firebase.reconnectWiFi(true);
+    //Humidity
+    if (Firebase.RTDB.setFloat(&fbdo, "Data/Humidity", humidity)){
+      Serial.printf("PASSED humidity: %.2f\n",humidity);
     }
-  }
-  //Lux
-  if (Firebase.RTDB.setInt(&fbdo, "Data/Lux", lux)){
-    Serial.printf("PASSED lux: %u\n", lux);
-  }
-  else {
-    Serial.println(fbdo.errorReason());
-    if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
-      Serial.println("Attempting to reconnect to Firebase...");
-      Firebase.reconnectWiFi(true);
+    else {
+      Serial.println(fbdo.errorReason());
+      if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
+      Firebase.reconnectWiFi(true); 
+      }
     }
-  }
-  //pumpstatus
-  if (Firebase.RTDB.setString(&fbdo, "Data/Pumpstatus", pumpstatus)){
-    Serial.printf("PASSED pumpstatus: %s\n", pumpstatus);
-  }
-  else {
-    Serial.println(fbdo.errorReason());
-    if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
-      Serial.println("Attempting to reconnect to Firebase...");
-      Firebase.reconnectWiFi(true);
+    //soilMoisture
+    if (Firebase.RTDB.setFloat(&fbdo, "Data/Soilmoisture", soilMoisture)){
+      Serial.printf("PASSED soilMoisture: %.2f\n",soilMoisture);
     }
-  }
-  //lightstatus
-  if (Firebase.RTDB.setString(&fbdo, "Data/Lightstatus", lightstatus)){
-    Serial.printf("PASSED lightstatus: %s\n", lightstatus);
-  }
-  else {
-    Serial.println(fbdo.errorReason());
-    if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
-      Serial.println("Attempting to reconnect to Firebase...");
-      Firebase.reconnectWiFi(true);
+    else {
+      Serial.println(fbdo.errorReason());
+      if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
+        Firebase.reconnectWiFi(true);
+      }
     }
-  }
-  //first_check 
-  if (Firebase.RTDB.setString(&fbdo, "Data/Firstcheck", first_check)){
-    Serial.printf("PASSED first_check: %s\n", first_check);
-  }
-  else {
-    Serial.println(fbdo.errorReason());
-    if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
-      Serial.println("Attempting to reconnect to Firebase...");
-      Firebase.reconnectWiFi(true);
+    //Lux
+    if (Firebase.RTDB.setInt(&fbdo, "Data/Lux", lux)){
+      Serial.printf("PASSED lux: %u\n", lux);
     }
+    else {
+      Serial.println(fbdo.errorReason());
+      if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
+        Serial.println("Attempting to reconnect to Firebase...");
+        Firebase.reconnectWiFi(true);
+      }
+    }
+    //pumpstatus
+    if (Firebase.RTDB.setString(&fbdo, "Data/Pumpstatus", pumpstatus)){
+      Serial.printf("PASSED pumpstatus: %s\n", pumpstatus);
+    }
+    else {
+      Serial.println(fbdo.errorReason());
+      if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
+        Serial.println("Attempting to reconnect to Firebase...");
+        Firebase.reconnectWiFi(true);
+      }
+    }
+    //lightstatus
+    if (Firebase.RTDB.setString(&fbdo, "Data/Lightstatus", lightstatus)){
+      Serial.printf("PASSED lightstatus: %s\n", lightstatus);
+    }
+    else {
+      Serial.println(fbdo.errorReason());
+      if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
+        Serial.println("Attempting to reconnect to Firebase...");
+        Firebase.reconnectWiFi(true);
+      }
+    }
+    //first_check 
+    if (Firebase.RTDB.setString(&fbdo, "Data/Firstcheck", first_check)){
+      Serial.printf("PASSED first_check: %s\n", first_check);
+    }
+    else {
+      Serial.println(fbdo.errorReason());
+      if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
+        Serial.println("Attempting to reconnect to Firebase...");
+        Firebase.reconnectWiFi(true);
+      }
+    }
+    Serial.println("Complete");
   }
   //Timestamp
-  if(Time_i >= 15){
+  if(Time_i >= 12){
     Serial.println("Timestamp");
     if (Firebase.RTDB.setFloat(&fbdo, "Log/"+String(timestamp)+"/Temperature", temperature)){
     Serial.printf("PASSED temperature: %.2f\n", temperature);
@@ -183,19 +190,19 @@ void Firebase_SET(){
       Serial.println("REASON: " + fbdo.errorReason());
     }
     Time_i=0;
+    Serial.println("Complete log");
   }
-  Time_i++;
-  Serial.printf(" Time_i: %d\n",Time_i);
-  Serial.println("Complete");
 }
 
 void Firebase_GET(){
-  
+  //9 GET
   //time 1 hour 
-  if (Firebase.RTDB.getInt(&fbdo, "users/Time1/hour")) {
-    time1.user_hr = fbdo.intData();
-    Serial.print("time 1 hour: ");
-    Serial.println(time1.user_hr);
+  if (Firebase.RTDB.readStream(&fdbo_sut1h)) {
+    if(fdbo_sut1h.streamAvailable()){
+      time1.user_hr = fdbo_sut1h.intData();
+      Serial.print("time 1 hour: ");
+      Serial.println(time1.user_hr);
+    }
   }
   else {
     Serial.println(fbdo.errorReason());
@@ -205,10 +212,12 @@ void Firebase_GET(){
     }
   }
   //time 1 minute 
-  if (Firebase.RTDB.getInt(&fbdo, "users/Time1/minute")) {
-    time1.user_min = fbdo.intData();
-    Serial.print("time 1 min: ");
-    Serial.println(time1.user_min);
+  if (Firebase.RTDB.readStream(&fdbo_sut1m)) {
+    if(fdbo_sut1m.streamAvailable()){
+      time1.user_min = fdbo_sut1m.intData();
+      Serial.print("time 1 min: ");
+      Serial.println(time1.user_min);
+    }
   }
   else {
     Serial.println(fbdo.errorReason());
@@ -218,10 +227,12 @@ void Firebase_GET(){
     }
   }
   //time 2 hour 
-  if (Firebase.RTDB.getInt(&fbdo, "users/Time2/hour")) {
-    time2.user_hr = fbdo.intData();
-    Serial.print("time 2 hour: ");
-    Serial.println(time2.user_hr);
+  if (Firebase.RTDB.readStream(&fdbo_sut2h)) {
+    if(fdbo_sut2h.streamAvailable()){
+      time2.user_hr = fdbo_sut2h.intData();
+      Serial.print("time 2 hour: ");
+      Serial.println(time2.user_hr);
+    }
   }
   else {
     Serial.println(fbdo.errorReason());
@@ -231,10 +242,12 @@ void Firebase_GET(){
     }
   }
   //time 2 minute 
-  if (Firebase.RTDB.getInt(&fbdo, "users/Time2/minute")) {
-    time2.user_min = fbdo.intData();
-    Serial.print("time 2 min: ");
-    Serial.println(time2.user_min);
+  if (Firebase.RTDB.readStream(&fdbo_sut2m)) {
+    if(fdbo_sut2m.streamAvailable()){
+      time2.user_min = fdbo_sut2m.intData();
+      Serial.print("time 2 min: ");
+      Serial.println(time2.user_min);;
+    }
   }
   else {
     Serial.println(fbdo.errorReason());
@@ -244,10 +257,12 @@ void Firebase_GET(){
     }
   }
   //user_moistureThreshold 
-  if (Firebase.RTDB.getInt(&fbdo, "users/MoistureThreshold/value")) {
-    user_moistureThreshold = fbdo.intData();
-    Serial.print("user_moistureThreshold: ");
-    Serial.println(user_moistureThreshold);
+  if (Firebase.RTDB.readStream(&fdbo_susoilt)) {
+     if(fdbo_susoilt.streamAvailable()){
+      user_moistureThreshold = fdbo_susoilt.intData();
+      Serial.print("user_moistureThreshold: ");
+      Serial.println(user_moistureThreshold);
+    }
   }
   else {
     Serial.println(fbdo.errorReason());
@@ -257,10 +272,12 @@ void Firebase_GET(){
     }
   }
   //user_lixtureThreshold 
-  if (Firebase.RTDB.getInt(&fbdo, "users/LuxThreshold/value")) {
-    user_luxThreshold = fbdo.intData();
-    Serial.print("user_luxThreshold: ");
-    Serial.println(user_luxThreshold);
+  if (Firebase.RTDB.readStream(&fdbo_suluxt)) {
+    if(fdbo_suluxt.streamAvailable()){
+      user_luxThreshold = fdbo_suluxt.intData();
+      Serial.print("user_luxThreshold: ");
+      Serial.println(user_luxThreshold);
+    } 
   }
   else {
     Serial.println(fbdo.errorReason());
@@ -269,11 +286,12 @@ void Firebase_GET(){
       Firebase.reconnectWiFi(true);
     }
   }
-  
   //first_check 
-  if (Firebase.RTDB.getString(&fbdo, "Data/Firstcheck")){
-    first_check = fbdo.stringData().c_str();
-    Serial.printf("first_check %s\n", first_check);
+  if (Firebase.RTDB.readStream(&fdbo_sdfc)){
+    if(fdbo_sdfc.streamAvailable()){
+      first_check = fdbo_sdfc.stringData().c_str();
+     Serial.printf("first_check %s\n", first_check);
+    } 
   }
   else {
     Serial.println(fbdo.errorReason());
@@ -283,10 +301,12 @@ void Firebase_GET(){
     }
   } 
   //lightStatus 
-  if (Firebase.RTDB.getString(&fbdo, "users/LightStatus/value")) {
-    user_lightstatus = fbdo.stringData().c_str();
-    Serial.print("LightStatus: ");
-    Serial.println(user_lightstatus);
+  if (Firebase.RTDB.readStream(&fdbo_suls)) {
+    if(fdbo_suls.streamAvailable()){
+      user_lightstatus = fdbo_suls.stringData().c_str();
+      Serial.print("LightStatus: ");
+      Serial.println(user_lightstatus);
+    } 
   }
   else {
     Serial.println(fbdo.errorReason());
@@ -296,10 +316,12 @@ void Firebase_GET(){
     }
   }
     //PumpStatus 
-  if (Firebase.RTDB.getString(&fbdo, "users/PumpStatus/value")) {
-    user_pumpstatus = fbdo.stringData().c_str();
-    Serial.print("PumpStatus: ");
-    Serial.println(user_pumpstatus);
+  if (Firebase.RTDB.readStream(&fdbo_sups)) {
+    if(fdbo_sups.streamAvailable()){
+      user_pumpstatus = fdbo_sups.stringData().c_str();
+      Serial.print("PumpStatus: ");
+      Serial.println(user_pumpstatus);;
+    } 
   }
   else {
     Serial.println(fbdo.errorReason());
@@ -309,6 +331,7 @@ void Firebase_GET(){
     }
   }
 }
+
 
 
 bool BH1750_read( uint8_t addr, uint16_t *lux ){
@@ -462,6 +485,10 @@ void setup() {
   config.token_status_callback = tokenStatusCallback; 
   //Assign the RTDB URL (required)
   config.database_url = DATABASE_URL;
+  // auth.token.uid = USERID;
+  Firebase.reconnectWiFi(true);
+  fbdo.setResponseSize(4096);
+  //config.max_token_generation_retry = 12;
    /* Sign up */
   if (Firebase.signUp(&config, &auth, "", "")){
     signupOK = true;
@@ -472,40 +499,75 @@ void setup() {
     Serial.printf("%s\n", config.signer.signupError.message.c_str());
   }
   Firebase.begin(&config, &auth);
-  Firebase.reconnectWiFi(true);
-
+  //stream
+  if(!Firebase.RTDB.beginStream(&fdbo_sut1h,"users/Time1/hour")){
+    Serial.printf("fdbo_sut1h %s\n", fdbo_sut1h.errorReason().c_str());
+  }
+  if(!Firebase.RTDB.beginStream(&fdbo_sut1m,"users/Time1/minute")){
+    Serial.printf("fdbo_sut1m %s\n", fdbo_sut1m.errorReason().c_str());
+  }
+  if(!Firebase.RTDB.beginStream(&fdbo_sut2h,"users/Time2/hour")){
+    Serial.printf("fdbo_sut2h %s\n", fdbo_sut2h.errorReason().c_str());
+  }
+  if(!Firebase.RTDB.beginStream(&fdbo_sut2m,"users/Time2/minute")){
+    Serial.printf("fdbo_sut2m %s\n", fdbo_sut2m.errorReason().c_str());
+  }
+  if(!Firebase.RTDB.beginStream(&fdbo_susoilt,"users/MoistureThreshold/value")){
+    Serial.printf("fdbo_susoilt %s\n", fdbo_susoilt.errorReason().c_str());
+  }
+  if(!Firebase.RTDB.beginStream(&fdbo_suluxt,"users/LuxThreshold/value")){
+    Serial.printf("fdbo_suluxt %s\n", fdbo_suluxt.errorReason().c_str());
+  }
+  if(!Firebase.RTDB.beginStream(&fdbo_suls,"users/LightStatus/value")){
+    Serial.printf("fdbo_sut1h %s\n", fdbo_suls.errorReason().c_str());
+  }
+  if(!Firebase.RTDB.beginStream(&fdbo_sups,"users/PumpStatus/value")){
+    Serial.printf("fdbo_sut1h %s\n", fdbo_sups.errorReason().c_str());
+  }
+  if(!Firebase.RTDB.beginStream(&fdbo_sdfc,"Data/Firstcheck")){
+    Serial.printf("fdbo_sdfc %s\n", fdbo_sdfc.errorReason().c_str());
+  }
 }
 
 void loop() {
+  if(Firebase.isTokenExpired()){
+    Firebase.refreshToken(&config);
+    Serial.println("refreshToken");
+  }
   Firebase_GET();
   if(user_lightstatus == "0" && user_pumpstatus == "0" && first_check =="0"){
     digitalWrite(relayPumpPin, HIGH);
     digitalWrite(relayLightPin, HIGH);
     pumpstatus="0";
     lightstatus="0";
-     //pumpstatus
-    if (Firebase.RTDB.setString(&fbdo, "Data/Pumpstatus", pumpstatus)){
-      Serial.printf("PASSED pumpstatus: %u\n", pumpstatus);
-    }
-    else {
-      Serial.println(fbdo.errorReason());
-      if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
-        Serial.println("Attempting to reconnect to Firebase...");
-        Firebase.reconnectWiFi(true);
+    if (Firebase.ready() && (millis() - sendDataPrevMillis > 5000 || sendDataPrevMillis == 0)){
+      sendDataPrevMillis = millis();
+      //pumpstatus
+      if (Firebase.RTDB.setString(&fbdo, "Data/Pumpstatus", pumpstatus)){
+        Serial.printf("PASSED pumpstatus: %u\n", pumpstatus);
       }
-    }
-    //lightstatus
-    if (Firebase.RTDB.setString(&fbdo, "Data/Lightstatus", lightstatus)){
-      Serial.printf("PASSED: %u\n", lightstatus);
-    }
-    else {
-      Serial.println(fbdo.errorReason());
-      if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
-        Serial.println("Attempting to reconnect to Firebase...");
-        Firebase.reconnectWiFi(true);
+      else {
+        Serial.println(fbdo.errorReason());
+        if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
+          Serial.println("Attempting to reconnect to Firebase...");
+          Firebase.reconnectWiFi(true);
+        }
+      }
+      //lightstatus
+      if (Firebase.RTDB.setString(&fbdo, "Data/Lightstatus", lightstatus)){
+        Serial.printf("PASSED: %u\n", lightstatus);
+      }
+      else {
+        Serial.println(fbdo.errorReason());
+        if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
+          Serial.println("Attempting to reconnect to Firebase...");
+          Firebase.reconnectWiFi(true);
+        }
       }
     }
     Serial.println("System off");
+    //enterDeepSleep();
+    delay(1000);
   }
   else{
     //set time 
@@ -552,7 +614,6 @@ void loop() {
         soilMoisture = analogRead(soilMoisturePin);
         soilMoisture = map(soilMoisture, 0, 4095, 100, 0); 
         Firebase_SET();
-        delay(2000);
         Serial.println( "stage 1" );
         }
         first_check = "1";
