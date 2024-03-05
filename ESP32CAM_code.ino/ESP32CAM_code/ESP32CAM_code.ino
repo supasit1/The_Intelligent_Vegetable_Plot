@@ -301,12 +301,13 @@ void loop(){
     time_t now;
     struct tm timeinfo;
     time(&now);
+    int timestamp = now;
     localtime_r(&now, &timeinfo);
     configTime(timezone, 0, ntpServer);
    
-    if ((timeinfo.tm_hour == 8 && timeinfo.tm_min == 0) || 
-        (timeinfo.tm_hour == 12 && timeinfo.tm_min == 0) || 
-        (timeinfo.tm_hour == 16 && timeinfo.tm_min == 0) 
+    if ((timeinfo.tm_hour == 8 && timeinfo.tm_min == 0 && timeinfo.tm_sec <= 2) || 
+        (timeinfo.tm_hour == 12 && timeinfo.tm_min == 0 && timeinfo.tm_sec <= 2) || 
+        (timeinfo.tm_hour == 16 && timeinfo.tm_min == 0 && timeinfo.tm_sec <= 2)
         &&(now - lastPhotoTimestamp >= PHOTO_INTERVAL))
     {
       Serial.println("Record Photo");
@@ -314,9 +315,8 @@ void loop(){
         // Format the filename with date and time
         char filename[50];
         char BUCKETREC_PHOTO[50];
-        sprintf(filename, "/%02d-%02d_%02d:%02d:%02d.jpg", timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_hour,timeinfo.tm_min, timeinfo.tm_sec);
-        sprintf(BUCKETREC_PHOTO, "/Record/%02d-%02d_%02d:%02d:%02d.jpg", timeinfo.tm_mday,timeinfo.tm_mon + 1, timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
-        //#define BUCKET_PHOTO "/Streaming/photo.jpg"
+        sprintf(filename, "/%d.jpg",timestamp);
+        sprintf(BUCKETREC_PHOTO, "/Record/%d",timestamp);
         // Capture and save the photo
         capturePhotoSaveLittleFS(filename);
         takeNewPhoto = false;
