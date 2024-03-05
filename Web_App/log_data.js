@@ -11,10 +11,10 @@ var datalogref = ref(database, dblogPath);
 // convert epochtime to JavaScripte Date object
 function epochToJsDate(epochTime){
     return new Date(epochTime*1000);
-  }
+}
   
-  // convert time to human-readable format YYYY/MM/DD HH:MM:SS
-  function epochToDateTime(epochTime){
+// convert time to human-readable format YYYY/MM/DD HH:MM:SS
+function epochToDateTime(epochTime){
     var epochDate = new Date(epochToJsDate(epochTime));
     var dateTime = epochDate.getFullYear() + "/" +
       ("00" + (epochDate.getMonth() + 1)).slice(-2) + "/" +
@@ -41,7 +41,7 @@ function createTable(){
     // Use ref() function to create a reference to the database path
     onDataChange = onChildAdded(datalogref, function(snapshot) {
         var jsonData = snapshot.val(); // Use val() to get the snapshot's value
-        console.log(jsonData);
+        //console.log(jsonData);
         var content='';
         content += '<tr>';
         content += '<td>' + epochToDateTime(`${jsonData.Timestamp}`) + '</td>';
@@ -62,6 +62,7 @@ function createTable(){
 }
 viewDataButtonElement.addEventListener('click', (e) =>{
     // Toggle DOM elements
+    console.log('Test');
     tableContainerElement.style.display="";
     createTable();
 });
@@ -103,13 +104,18 @@ DownloadButtonElement.addEventListener('click', (e) =>{
 });
 
 DeleteButtonElement.addEventListener('click', (e) =>{
-    if (confirm("คุณแน่ใจหรือไม่ที่ต้องการจะ Delete log")) {
-        deleteData();
-        location.reload();
+    if (confirm("คุณแน่ใจหรือไม่ที่ต้องการจะลบ log")) {
+        const userInput = prompt("กรุณาพิมพ์ 'Delete all Data' เพื่อยืนยันการลบข้อมูล:");
+        if(userInput.trim() === "Delete all Data"){
+            console.log("Delete all Data");
+            deleteData();
+            location.reload();
+        }
     } 
     else {
         // ไม่ต้องดำเนินการใดๆ
     }
+    
 });
 
 var maintbn = document.getElementById('maintbn');

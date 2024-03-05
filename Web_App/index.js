@@ -1,18 +1,20 @@
 import firebaseConfig from './auth_firebase.js';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase,ref,set,get} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase,ref,set,get,onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import { getFirestore, getDoc, getDocs,collection,doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getStorage,ref as storageRef, listAll, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const firestore  = getFirestore(app);
-const FirstcheckRef = ref(database, 'users/Firstcheck/value'); 
+const FirstcheckRef = ref(database, 'users/Firstcheck/value');
+const storage = getStorage(app);
+const strRef = storageRef(storage,'Record/')
 get(FirstcheckRef).then((snapshot)=>{
   const firstcheckValue = snapshot.val();
   console.log('firstcheckValue get= ',firstcheckValue);
   if (firstcheckValue === "1") {
     window.location.href = 'main.html';
   }
-
 })
   const selectElement = document.getElementById('veget');
   const t1_hour = document.getElementById('t1_hour');
@@ -24,6 +26,7 @@ get(FirstcheckRef).then((snapshot)=>{
   const lux = document.getElementById('lux');
   const soil = document.getElementById('soil');
   var logdatabtn = document.getElementById('logdatabtn');
+  var logimgbtn = document.getElementById('logimgbtn');
   var selectedValue = "";
   var soiledit;
   var luxedit;
@@ -115,12 +118,6 @@ get(FirstcheckRef).then((snapshot)=>{
   // บันทึกข้อมูลลงใน Realtime database
     
 }
-// soil.value = data.soilmoisture;
-// lux.value = data.lux
-// t1_hour.value = data.time1_h;
-// t1_minute.value = data.time1_m;
-// t2_hour.value = data.time2_h;
-// t2_minute.value = data.time2_m;
 soil.onchange = function() {
   if(this.value===""){
     alert("ห้ามใส่ค่าว่าง");
@@ -192,5 +189,32 @@ t2_hour.onchange = function() {
 });
 
 logdatabtn.addEventListener('click', (e) =>{
-  window.location.href = 'log_data.html';
+  // Retrieve data once
+  var numberOfEntries
+  const logRef = ref(database,'Log/');
+  onValue(logRef,function(snapshot){
+    // Get the number of children (log entries)
+    var jsonData = snapshot.val();
+    numberOfEntries = Object.keys(jsonData).length;
+    console.log(`Number of log entries: ${numberOfEntries}`);
+  });
+  if(numberOfEntries <= 0){
+    alert('ไม่มีข้อมูล');
+  }
+  else{
+    window.location.href = 'log_data.html';
+  }
+});
+
+logimgbtn.addEventListener('click', (e) =>{
+  listAll(strRef).then(function(result) {
+    if (result.items.length <= 0) {
+      alert('ไม่มีข้อมูล');
+    } else {
+      window.location.href = 'log_img.html';
+    }
+  }).catch(function(error) {
+    console.error('Error listing images:', error);
+  });
+
 });

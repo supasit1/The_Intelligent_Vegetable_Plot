@@ -34,6 +34,9 @@ var savebtn = document.getElementById("savebtn");
 var cancelbtn = document.getElementById("cancelbtn");
 var logdatabtn = document.getElementById("logdatabtn");
 var logimgbtn = document.getElementById("logimgbtn");
+var lightstatus = document.getElementById("lightstatus");
+var pumpstatus = document.getElementById("pumpstatus")
+
 //set data
 const dataRef = ref(database, "Data");
 onValue(dataRef, (snapshot) => {
@@ -43,6 +46,8 @@ onValue(dataRef, (snapshot) => {
   lux.innerText = `${data.Lux}`;
   soilmoisture.innerText = `${data.Soilmoisture}`;
   image.src = `${data.Streaming}`;
+  pumpstatus.innerText =`${data.Pumpstatus}`==="0" ?"System Off":"Pump working" ;
+  lightstatus.innerText =`${data.Lightstatus}`==="0"?"System Off":"Light working";
 });
 //Set users
 const usersRef = ref(database, "users");
@@ -61,8 +66,8 @@ onValue(usersRef, (snapshot) => {
   luxedit.value = `${data.LuxThreshold.value}`;
   soiledit.value = `${data.MoistureThreshold.value}`;
   vegetname.innerText = `${data.Vegetable.name}`;
-  pumpButton.innerText = `${data.PumpStatus.value}` === "0" ? "Pump Off" : "Pump On";
-  lightButton.innerText = `${data.LightStatus.value}` === "0" ? "Light Off" : "Light On";
+  pumpButton.innerText = `${data.PumpStatus.value}` === "0" ? "Switch\nPump Off" : "Switch\nPump On";
+  lightButton.innerText = `${data.LightStatus.value}` === "0" ? " Switch\nLight Off" : "Switch\nLight On";
 });
 //Pump
 pumpButton.addEventListener("click", () => {
@@ -78,7 +83,7 @@ function PumpButtonClicked() {
   // Read the current value
   const currentValue = pumpButton.innerText;
   // Toggle the value
-  const newValue = currentValue === "Pump On" ? "Pump Off" : "Pump On";
+  const newValue = currentValue === "Switch\nPump On" ? "Switch\nPump Off" : "Switch\nPump On";
   // Update the button attribute
   pumpButton.setAttribute("data-value", newValue);
   // Update the button text
@@ -87,7 +92,7 @@ function PumpButtonClicked() {
   set_pumpStatus(newValue);
 }
 function set_pumpStatus(newValue) {
-  const PumpvalueToSet = newValue === "Pump On" ? "1" : "0";
+  const PumpvalueToSet = newValue === "Switch\nPump On" ? "1" : "0";
   
   set(ref(database, 'users/PumpStatus'), {
     value: PumpvalueToSet
@@ -108,7 +113,7 @@ function lightButtonClicked() {
   // Read the current value
   const currentValue = lightButton.innerText;
   // Toggle the value
-  const newValue = currentValue === "Light On" ? "Light Off" : "Light On";
+  const newValue = currentValue === "Switch\nLight On" ? "Switch\nLight Off" : "Switch\nLight On";
   // Update the button attribute
   lightButton.setAttribute("data-value", newValue);
   // Update the button text
@@ -117,7 +122,7 @@ function lightButtonClicked() {
   set_lightStatus(newValue);
 }
 function set_lightStatus(newValue) {
-  const LightvalueToSet = newValue === "Light On" ? "1" : "0";
+  const LightvalueToSet = newValue === "Switch\nLight On" ? "1" : "0";
   set(ref(database, 'users/LightStatus'), {
     value: LightvalueToSet
   })
