@@ -13,6 +13,38 @@ get(FirstcheckRef).then((snapshot)=>{
     window.location.href = 'index.html';
   }
 })
+var themeToggle = document.getElementById('themeToggle');
+// สร้าง Media Query สำหรับตรวจสอบโหมดโทนสี
+var darkModeQuery = window.matchMedia('(prefers-color-scheme: light)');
+
+// เรียกฟังก์ชันเมื่อมีการเปลี่ยนแปลงในโหมดโทนสี
+function handleThemeChange(e) {
+    if (e.matches) {
+      // ถ้าโหมดสีเป็น Dark Mode
+      console.log('Dark Mode enabled');
+      themeToggle.value = "dark";
+      // ทำสิ่งที่คุณต้องการเมื่ออยู่ใน Dark Mode
+    } else {
+      // ถ้าโหมดสีเป็น Light Mode
+      console.log('Light Mode enabled');
+      themeToggle.value = "light";
+      // ทำสิ่งที่คุณต้องการเมื่ออยู่ใน Light Mode
+    }
+}
+
+// ตรวจสอบค่าเริ่มต้นของโหมดโทนสีและตั้งค่าให้เป็น Light Mode
+if (!darkModeQuery.matches) {
+  // ถ้าไม่ใช่ Dark Mode
+  console.log('Starting in Light Mode');
+  themeToggle.value = "dark"; // เรียกใช้ฟังก์ชันที่ตรวจสอบโหมดเพื่อตั้งค่าเป็น Light Mode
+  handleThemeChange(darkModeQuery);
+} 
+else {
+  console.log('Starting in Dark Mode');
+  // ถ้าเป็น Dark Mode
+  themeToggle.value = "light";
+  handleThemeChange(darkModeQuery); // เรียกใช้ฟังก์ชันที่ตรวจสอบโหมดเพื่อการจัดการตามเงื่อนไข
+}
 
 //get element
 var image = document.getElementById("image");
@@ -70,10 +102,10 @@ onValue(usersRef, (snapshot) => {
   pumpButton.innerText = `${data.PumpStatus.value}` === "0" ? "Switch\nPump Off" : "Switch\nPump On";
   lightButton.innerText = `${data.LightStatus.value}` === "0" ? " Switch\nLight Off" : "Switch\nLight On";
   //css button
-  pumpButton.classList.remove(`${data.PumpStatus.value}` === "0" ? 'btn-green' : 'btn-red');
-  pumpButton.classList.add(`${data.PumpStatus.value}` === "0" ? 'btn-red' : 'btn-green');
-  lightButton.classList.remove(`${data.LightStatus.value}` === "0" ? 'btn-green' : 'btn-red');
-  lightButton.classList.add(`${data.LightStatus.value}` === "0" ? 'btn-red' : 'btn-green');
+  pumpButton.classList.remove(`${data.PumpStatus.value}` === "0" ? 'btn-green-500' : 'btn-red-500');
+  pumpButton.classList.add(`${data.PumpStatus.value}` === "0" ? 'btn-red-500' : 'btn-green-500');
+  lightButton.classList.remove(`${data.LightStatus.value}` === "0" ? 'btn-green-500' : 'btn-red-500');
+  lightButton.classList.add(`${data.LightStatus.value}` === "0" ? 'btn-red-500' : 'btn-green-500');
 });
 //Pump
 pumpButton.addEventListener("click", () => {
@@ -90,8 +122,8 @@ function PumpButtonClicked() {
   const currentValue = pumpButton.innerText;
   // Toggle the value
   const newValue = currentValue === "Switch\nPump On" ? "Switch\nPump Off" : "Switch\nPump On";
-  pumpButton.classList.remove(newValue === "Switch\nPump Off" ? 'btn-green' : 'btn-red');
-  pumpButton.classList.add(newValue === "Switch\nPump On" ? 'btn-red' : 'btn-green');
+  pumpButton.classList.remove(newValue === "Switch\nPump Off" ? 'btn-green-500' : 'btn-red-500');
+  pumpButton.classList.add(newValue === "Switch\nPump On" ? 'btn-red-500' : 'btn-green-500');
   // Update the button attribute
   pumpButton.setAttribute("data-value", newValue);
   // Update the button text
@@ -122,8 +154,8 @@ function lightButtonClicked() {
   const currentValue = lightButton.innerText;
   // Toggle the value
   const newValue = currentValue === "Switch\nLight On" ? "Switch\nLight Off" : "Switch\nLight On";
-  lightButton.classList.remove(newValue === "Switch\nLight Off" ? 'btn-green' : 'btn-red');
-  lightButton.classList.add(newValue === "Switch\nLight On" ? 'btn-red' : 'btn-green');
+  lightButton.classList.remove(newValue === "Switch\nLight Off" ? 'btn-green-500' : 'btn-red-500');
+  lightButton.classList.add(newValue === "Switch\nLight On" ? 'btn-red-500' : 'btn-green-500');
   // Update the button attribute
   lightButton.setAttribute("data-value", newValue);
   // Update the button text
@@ -422,11 +454,35 @@ soiledit.onchange = function() {
 };
 luxedit.onchange = function() {
   const usersRef = ref(database, "users");
-  if(this.value===""){
-    alert("ห้ามใส่ค่าว่าง");
-    onValue(usersRef, (snapshot) => {
-      const data = snapshot.val();
-      this.value = data.LuxThreshold.value;
+  var value ;
+  onValue(usersRef, (snapshot) => {
+    const data = snapshot.val();
+    value = data.LuxThreshold.value;
+  });
+  if(this.value > 9999){
+    Swal.fire({
+      title: "กรุณาใส่ค่าไม่เกิน 9999 LUX",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
     });
+    this.value =  value;
+  }
+  if(this.value===""){
+    Swal.fire({
+      title: "ห้ามใส่ค่าว่าง!",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+    });
+    this.value =  value;
   }
 };

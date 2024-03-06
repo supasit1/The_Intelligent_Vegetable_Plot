@@ -12,6 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
     <style>
         body {
             font-family: 'Prompt', sans-serif;
@@ -21,19 +22,29 @@
             /* หรือจะเลือกแบบอักษรอื่นที่คุณต้องการ */
         }
         .button-effect {
-    transition-duration: 0.4s;
-    border: 2px solid #6B7280;
-}
+            transition-duration: 0.4s;
+        }
 
-.button-effect:hover {
-    transform: scale(1.1);
-}
+        .button-effect:hover {
+            transform: scale(1.1);
+        }
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #2d3748; /* ตั้งค่าสีพื้นหลังสำหรับ Dark Mode */
+                color: #000000; /* ตั้งค่าสีข้อความสำหรับ Dark Mode */
+            }
+            input,select{
+                background-color: #ffffff;
+            }
+        }
+    
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-400">
+    <div class="container mx-auto p-4"> <!-- เพิ่มคลาส mx-auto เพื่อจัดเนื้อหาตรงกลาง -->
     <div class="container mx-auto p-4 bg-white shadow-md rounded-md mt-8">
         <h1 class="text-2xl font-bold text-center mb-4"><i class="fa-solid fa-seedling fa-flip" style="color: #63E6BE;"></i> The Intelligent Vegetable Plot Preset</h1>
-        <label for="veget" class="text-lg">เลือกผักที่จะปลูก :</label>
+        <label for="veget" class="text-lg">เลือกผักที่จะปลูก</label>
         <select name="veget" id="veget" class="block w-full p-2 border border-gray-300 rounded-md mb-4">
             <option value="">กรุณาเลือกผัก</option>
             <option value="Sun">ต้นอ่อนทานตะวัน</option>
@@ -41,9 +52,9 @@
             <option value="lettuce">ผักกาดหอม</option>
             <option value="morningglory">ผักบุ้งจีน</option>
         </select>
-        <label for="description" class="text-lg">คำอธิบาย :</label>
+        <label for="description" class="text-lg">คำอธิบาย</label>
         <p id="description" class="mb-4"></p>
-        <label for="soil" class="text-lg">ค่าความชื้นในดินที่ต้องการกำหนด %</label>
+        <label for="soil" class="text-lg">ค่าความชื้นในดินที่ต้องการกำหนด</label>
         <input type="number" id="soil" class="block w-full p-2 border border-gray-300 rounded-md mb-4" min="0" max="100">
         <label for="lux" class="text-lg">ค่าแสงที่ต้องการกำหนด (Lux)</label>
         <input type="number" id="lux" class="w-full p-2 border border-gray-300 rounded-md mb-4" min="0" max="9999">
@@ -69,6 +80,7 @@
             </div>
         </div>
     </div>
+</div>
 </body>
 </html>
 
