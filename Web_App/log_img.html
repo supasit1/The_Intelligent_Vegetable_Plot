@@ -1,4 +1,58 @@
 <!DOCTYPE html>
+<head>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://kit.fontawesome.com/6bea0281d1.js" crossorigin="anonymous"></script>
+    <!-- เรียกใช้งานไลบรารี tailwindcss -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+        }
+
+        h1 {
+            font-family: 'Prompt', sans-serif;
+        }
+        .center-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        /* .message-box {
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* เพิ่มเงาให้กับกล่อง */
+            /* background-color: white; /* กำหนดพื้นหลังเป็นสีขาว */
+        .button-effect {
+            transition-duration: 0.4s;
+            /* border: 2px solid #6B7280; */
+        }
+
+        .button-effect:hover {
+            transform: scale(1.1);
+        }
+        .btn-red-500 {
+            background-color: #f56565;
+            border-color: #f56565;
+        }
+
+        .btn-green-500 {
+            background-color: #48bb78;
+            border-color: #48bb78;
+        }
+        .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+    </style>
 <html lang="en">
     <head>
     <meta charset="UTF-8">
@@ -8,8 +62,8 @@
     <title>Log img</title>
 </head>
 <body>
-  <h1>รายการภาพ</h1>
-  <div id="imageList"></div>
+  <div id="imageList" class="p-4 bg-gray-100 shadow-md mb-8"></div>
+  <h1 class="text-3xl font-bold p-5 text-center mb-8"><i class="fa-solid fa-seedling fa-flip" style="color: #63E6BE;"></i> รายการภาพ</h1>
   <div class="cards">
     <div class="card" id="table-container">
       <table id="readings-table">
@@ -25,13 +79,13 @@
       </table>
     </div>
   </div>
-  <div class="pagination">
-    <button id="prevPage">Previous Page</button>
+  <div class="pagination flex justify-center items-center mb-4">
+    <button id="prevPage" class="bg-blue-400 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded mr-2 button-effect mb-2 shadow-md"><i class="fa-solid fa-angle-left" style="color: #ffffff;"></i> Previous Page</button>
     <span id="currentPage"></span> / <span id="totalPages"></span>
-    <button id="nextPage">Next Page</button>
-  </div>
-  <button id="download-button">Download Data</button>
-  <button id="mainbtn">Back to Main</button>
+    <button id="nextPage" class="bg-blue-400 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded ml-2 button-effect mb-2 shadow-md">Next Page <i class="fa-solid fa-angle-right" style="color: #ffffff;"></i></button>
+</div>
+<button id="download-button" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mr-2 button-effect mb-2 shadow-md">Download Data <i class="fa-solid fa-download fa-bounce"></i></button>
+<button id="mainbtn" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2 button-effect mb-2 shadow-md">Back to Main</button>
 </body>
 </html>
 

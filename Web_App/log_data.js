@@ -98,25 +98,96 @@ function deleteData(){
 }
 createTable();
 // เพิ่มการฟังก์ชัน exportToCSV() และ exportToXLSX() เข้าไปใน event listener ของปุ่ม
-DownloadButtonElement.addEventListener('click', (e) =>{
-    console.log("downloadButtonElement")
-    exportToCSV()
+DownloadButtonElement.addEventListener('click', (e) => {
+    let timerInterval;
+    Swal.fire({
+      title: "คุณจะทำดาวน์โหลดหรือไม่?",
+      icon: "warning",
+      showCancelButton: true,
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+      cancelButtonText: "No",
+      showClass: {
+        popup: `
+          animate__animated
+          animate__fadeInUp
+          animate__faster
+        `
+      },
+      hideClass: {
+        popup: `
+          animate__animated
+          animate__fadeOutDown
+          animate__faster
+        `
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: "กำลังจัดเตรียมไฟล์",
+          html: "โปรดรอสักครู่!!!",
+          timer: 2000,
+          timerProgressBar: true,
+          didOpen: () => {
+            Swal.showLoading();
+            const timer = Swal.getPopup().querySelector("b");
+            timerInterval = setInterval(() => {
+              timer.textContent = `${Swal.getTimerLeft()}`;
+            }, 100);
+          },
+          willClose: () => {
+            clearInterval(timerInterval);
+          }
+        }).then(() => {
+          Swal.fire("Download!", "", "success");
+          // บันทึกข้อมูลลงใน Realtime database
+          console.log("downloadButtonElement")
+          exportToCSV()
+        });
+      }
+    });
+  });
+
+  DeleteButtonElement.addEventListener('click', () =>{
+    Swal.fire({
+        title: "คุณแน่ใจที่จะต้องการลบข้อมูลทั้งหมด?",
+        text: "หากลบไปแล้วไม่สามารถกู้คืนได้!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: "กรุณาพิมพ์ 'Delete all Data' เพื่อยืนยันการลบข้อมูล",
+                input: "text",
+                showCancelButton: true,
+                confirmButtonText: "Submit",
+                inputValidator: (value) => {
+                    if (value !== "Delete all Data") {
+                        return "กรุณาพิมพ์ 'Delete all Data' เพื่อยืนยันการลบข้อมูล";
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    console.log("Delete all Data");
+                    Swal.fire({
+                        title: "ลบข้อมมูลเรียบร้อย!",
+                        text: "ข้อมูลได้ถูกลบออกหมดแล้ว",
+                        icon: "success"
+                    }).then(() => {
+                        deleteData();
+                        location.reload();
+                    });
+                }
+            });
+        }
+    });
 });
 
-DeleteButtonElement.addEventListener('click', (e) =>{
-    if (confirm("คุณแน่ใจหรือไม่ที่ต้องการจะลบ log")) {
-        const userInput = prompt("กรุณาพิมพ์ 'Delete all Data' เพื่อยืนยันการลบข้อมูล:");
-        if(userInput.trim() === "Delete all Data"){
-            console.log("Delete all Data");
-            deleteData();
-            location.reload();
-        }
-    } 
-    else {
-        // ไม่ต้องดำเนินการใดๆ
-    }
-    
-});
+
 
 var maintbn = document.getElementById('maintbn');
 maintbn.addEventListener('click', (e) =>{

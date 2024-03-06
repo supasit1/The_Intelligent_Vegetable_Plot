@@ -9,8 +9,6 @@ const firestore  = getFirestore(app);
 const FirstcheckRef = ref(database, 'users/Firstcheck/value');
 const storage = getStorage(app);
 const strRef = storageRef(storage,'Record/')
-
-
 get(FirstcheckRef).then((snapshot)=>{
   const firstcheckValue = snapshot.val();
   console.log('firstcheckValue get= ',firstcheckValue);
@@ -30,12 +28,7 @@ get(FirstcheckRef).then((snapshot)=>{
   var logdatabtn = document.getElementById('logdatabtn');
   var logimgbtn = document.getElementById('logimgbtn');
   var selectedValue = "";
-  var soiledit;
-  var luxedit;
-  var t1_houredit;
-  var t2_houredit;
-  var t1_minuteedit;
-  var t2_minuteedit;
+
   selectElement.addEventListener('change', async (event) => {
     // รับค่าที่ถูกเลือกจาก select
     selectedValue = event.target.value;
@@ -49,6 +42,7 @@ get(FirstcheckRef).then((snapshot)=>{
     if (presetdata.includes(selectedValue)) {
       showdata(selectedValue);
     }
+    console.log(selectedValue);
     return selectedValue;
   });
 

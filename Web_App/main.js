@@ -4,15 +4,6 @@ import firebaseConfig from './auth_firebase.js';
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
-
-const FirstcheckRef = ref(database, 'users/Firstcheck/value');
-get(FirstcheckRef).then((snapshot)=>{
-  const firstcheckValue = snapshot.val();
-  console.log('firstcheckValue get= ',firstcheckValue);
-  if (firstcheckValue === "0") {
-    window.location.href = 'index.html';
-  }
-})
 var themeToggle = document.getElementById('themeToggle');
 // สร้าง Media Query สำหรับตรวจสอบโหมดโทนสี
 var darkModeQuery = window.matchMedia('(prefers-color-scheme: light)');
@@ -45,6 +36,15 @@ else {
   themeToggle.value = "light";
   handleThemeChange(darkModeQuery); // เรียกใช้ฟังก์ชันที่ตรวจสอบโหมดเพื่อการจัดการตามเงื่อนไข
 }
+
+const FirstcheckRef = ref(database, 'users/Firstcheck/value');
+get(FirstcheckRef).then((snapshot)=>{
+  const firstcheckValue = snapshot.val();
+  console.log('firstcheckValue get= ',firstcheckValue);
+  if (firstcheckValue === "0") {
+    window.location.href = 'index.html';
+  }
+})
 
 //get element
 var image = document.getElementById("image");
@@ -243,19 +243,60 @@ logimgbtn.addEventListener('click', (e) =>{
   window.location.href = 'log_img.html';
 });
 completeButton.addEventListener('click', (e) =>{
-  if (confirm("คุณแน่ใจหรือไม่ที่ต้องการเสร็จสิ้นการปลูก")) {
-    
-    if (confirm("คุณต้องการที่จะ Download log ไหม")) {
-      window.location.href = 'log_data.html';
-    }
-    else{
-      window.location.href = 'index.html';
-    } 
-    SetToRDB();
-  } 
-  else {
-      // ไม่ต้องดำเนินการใดๆ
+  Swal.fire({
+    title: "คุณแน่ใจหรือไม่ที่ต้องการเสร็จสิ้นการปลูก",
+    icon: "warning",
+    showCancelButton: true,
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Save",
+    showClass: {
+    popup: `
+      animate__animated
+      animate__fadeInUp
+      animate__faster
+    `
+  },
+  hideClass: {
+    popup: `
+      animate__animated
+      animate__fadeOutDown
+      animate__faster
+    `
   }
+  }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: "คุณต้องการที่จะ Download Data ไหม",
+            icon: "warning",
+            showCancelButton: true,
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Save",
+            showClass: {
+            popup: `
+              animate__animated
+              animate__fadeInUp
+              animate__faster
+            `
+          },
+          hideClass: {
+            popup: `
+              animate__animated
+              animate__fadeOutDown
+              animate__faster
+            `
+          }
+          }).then((result) => {
+            if(result.isConfirmed){
+              window.location.href = 'log_data.html';
+            }
+            else{
+              window.location.href = 'index.html';
+            }
+            SetToRDB();
+          })
+      }
+  });
+  
 });
 
 

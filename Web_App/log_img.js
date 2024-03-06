@@ -77,8 +77,9 @@ function displayImages(startIndex, endIndex) {
         const imageCell = document.createElement('td');
         const img = document.createElement('img');
         img.src = url;
-        img.style.width = '200px'; // Set the width of the image (adjust as needed)
+        img.style.width = '300px'; // Set the width of the image (adjust as needed)
         img.style.height = 'auto'; // Set the height of the image (adjust as needed)
+        img.style.paddingLeft = '32%'; // Set the position
         imageCell.appendChild(img);
         row.appendChild(imageCell);
 
@@ -89,7 +90,7 @@ function displayImages(startIndex, endIndex) {
       });
     });
     
-  }).catch(function(error) {
+  }).catch(function(error) {  
     console.error('Error listing images:', error);
   });
 }
@@ -114,10 +115,57 @@ window.onload = function() {
 };
 
 const DownloadButtonElement = document.getElementById('download-button');
-DownloadButtonElement.addEventListener('click', (e) =>{
-  console.log("downloadButtonElement")
-  exportToCSV()
+DownloadButtonElement.addEventListener('click', (e) => {
+  let timerInterval;
+  Swal.fire({
+    title: "คุณจะทำดาวน์โหลดหรือไม่?",
+    icon: "warning",
+    showCancelButton: true,
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes",
+    cancelButtonText: "No",
+    showClass: {
+      popup: `
+        animate__animated
+        animate__fadeInUp
+        animate__faster
+      `
+    },
+    hideClass: {
+      popup: `
+        animate__animated
+        animate__fadeOutDown
+        animate__faster
+      `
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: "กำลังจัดเตรียมไฟล์",
+        html: "โปรดรอสักครู่!!!",
+        timer: 2000,
+        timerProgressBar: true,
+        didOpen: () => {
+          Swal.showLoading();
+          const timer = Swal.getPopup().querySelector("b");
+          timerInterval = setInterval(() => {
+            timer.textContent = `${Swal.getTimerLeft()}`;
+          }, 100);
+        },
+        willClose: () => {
+          clearInterval(timerInterval);
+        }
+      }).then(() => {
+        Swal.fire("Download!", "", "success");
+        // บันทึกข้อมูลลงใน Realtime database
+        console.log("downloadButtonElement")
+        exportToCSV()
+      });
+    }
+  });
 });
+
+
 
 function exportToCSV() {
   let csvContent = "data:text/csv;charset=utf-8,";
