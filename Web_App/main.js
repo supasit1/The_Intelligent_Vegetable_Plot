@@ -13,6 +13,7 @@ get(FirstcheckRef).then((snapshot)=>{
     window.location.href = 'index.html';
   }
 })
+
 //get element
 var image = document.getElementById("image");
 var HumidityElement = document.getElementById("humidity");
@@ -68,6 +69,11 @@ onValue(usersRef, (snapshot) => {
   vegetname.innerText = `${data.Vegetable.name}`;
   pumpButton.innerText = `${data.PumpStatus.value}` === "0" ? "Switch\nPump Off" : "Switch\nPump On";
   lightButton.innerText = `${data.LightStatus.value}` === "0" ? " Switch\nLight Off" : "Switch\nLight On";
+  //css button
+  pumpButton.classList.remove(`${data.PumpStatus.value}` === "0" ? 'btn-green' : 'btn-red');
+  pumpButton.classList.add(`${data.PumpStatus.value}` === "0" ? 'btn-red' : 'btn-green');
+  lightButton.classList.remove(`${data.LightStatus.value}` === "0" ? 'btn-green' : 'btn-red');
+  lightButton.classList.add(`${data.LightStatus.value}` === "0" ? 'btn-red' : 'btn-green');
 });
 //Pump
 pumpButton.addEventListener("click", () => {
@@ -84,6 +90,8 @@ function PumpButtonClicked() {
   const currentValue = pumpButton.innerText;
   // Toggle the value
   const newValue = currentValue === "Switch\nPump On" ? "Switch\nPump Off" : "Switch\nPump On";
+  pumpButton.classList.remove(newValue === "Switch\nPump Off" ? 'btn-green' : 'btn-red');
+  pumpButton.classList.add(newValue === "Switch\nPump On" ? 'btn-red' : 'btn-green');
   // Update the button attribute
   pumpButton.setAttribute("data-value", newValue);
   // Update the button text
@@ -114,6 +122,8 @@ function lightButtonClicked() {
   const currentValue = lightButton.innerText;
   // Toggle the value
   const newValue = currentValue === "Switch\nLight On" ? "Switch\nLight Off" : "Switch\nLight On";
+  lightButton.classList.remove(newValue === "Switch\nLight Off" ? 'btn-green' : 'btn-red');
+  lightButton.classList.add(newValue === "Switch\nLight On" ? 'btn-red' : 'btn-green');
   // Update the button attribute
   lightButton.setAttribute("data-value", newValue);
   // Update the button text
@@ -160,12 +170,38 @@ function saveEditedTime() {
     hour: parseInt(t2_hour.value, 10),
     minute: parseInt(t2_minute.value, 10)
   };
-  set(Time1Ref, time1Data);
-  set(Time2Ref, time2Data);
-  set(soileditRef, parseInt(soiledit.value), 10);
-  set(luxeditRef, parseInt(luxedit.value), 10);
-  document.getElementById("edit-time").style.display = "none";
-  // บันทึกข้อมูลลงใน Realtime database
+  Swal.fire({
+    title: "คุณจะทำการบันทึกค่าหรือไม่?",
+    icon: "warning",
+    showCancelButton: true,
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Save",
+    showClass: {
+    popup: `
+      animate__animated
+      animate__fadeInUp
+      animate__faster
+    `
+  },
+  hideClass: {
+    popup: `
+      animate__animated
+      animate__fadeOutDown
+      animate__faster
+    `
+  }
+}).then((result) => {
+    if (result.isConfirmed) {
+        Swal.fire("Saved!", "", "success");
+        // บันทึกข้อมูลลงใน Realtime database
+        set(Time1Ref, time1Data);
+        set(Time2Ref, time2Data);
+        set(soileditRef, parseInt(soiledit.value), 10);
+        set(luxeditRef, parseInt(luxedit.value), 10);
+        document.getElementById("edit-time").style.display = "none";
+    }
+});
+
 }
 //button
 logdatabtn.addEventListener('click', (e) =>{
@@ -207,14 +243,32 @@ t1_minute.onchange = function() {
   const usersRef = ref(database, "users");
   var minute = parseInt(this.value);
   if (minute > 59) {
-      alert("ชั่วโมงต้องไม่เกิน 60");
-      onValue(usersRef, (snapshot) => {
-        const data = snapshot.val();
-        this.value = data.Time1.minute;
-      });
+    Swal.fire({
+      title: "ชั่วโมงต้องไม่เกิน 60",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+    });
+    onValue(usersRef, (snapshot) => {
+      const data = snapshot.val();
+      this.value = data.Time1.minute;
+    });
   }
   if(this.value===""){
-    alert("ห้ามใส่ค่าว่าง");
+    Swal.fire({
+      title: "ห้ามใส่ค่าว่าง!",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+  });
     onValue(usersRef, (snapshot) => {
       const data = snapshot.val();
       this.value = data.Time1.minute;
@@ -225,14 +279,32 @@ t2_minute.onchange = function() {
   var minute = parseInt(this.value);
   const usersRef = ref(database, "users");
   if (minute > 59) {
-      alert("ชั่วโมงต้องไม่เกิน 60");
+    Swal.fire({
+      title: "ชั่วโมงต้องไม่เกิน 60",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+    });
       onValue(usersRef, (snapshot) => {
         const data = snapshot.val();
         this.value = data.Time2.minute;
       });
   }
   if(this.value===""){
-    alert("ห้ามใส่ค่าว่าง");
+    Swal.fire({
+      title: "ห้ามใส่ค่าว่าง!",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+    });
     onValue(usersRef, (snapshot) => {
       const data = snapshot.val();
       this.value = data.Time2.minute;
@@ -243,14 +315,32 @@ t1_hour.onchange = function() {
   var hour = parseInt(this.value);
   const usersRef = ref(database, "users");
   if (hour > 23) {
-      alert("ชั่วโมงต้องไม่เกิน 23");
-      onValue(usersRef, (snapshot) => {
-        const data = snapshot.val();
-        this.value = data.Time1.hour;
-      });
+    Swal.fire({
+      title: "ชั่วโมงต้องไม่เกิน 23",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+    });
+    onValue(usersRef, (snapshot) => {
+      const data = snapshot.val();
+      this.value = data.Time1.hour;
+    });
   }
   if(this.value===""){
-    alert("ห้ามใส่ค่าว่าง");
+    Swal.fire({
+      title: "ห้ามใส่ค่าว่าง!",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+    });
     onValue(usersRef, (snapshot) => {
       const data = snapshot.val();
       this.value = data.Time1.hour;
@@ -261,14 +351,32 @@ t2_hour.onchange = function() {
   var hour = parseInt(this.value);
   const usersRef = ref(database, "users");
   if (hour > 23) {
-      alert("ชั่วโมงต้องไม่เกิน 23");
-      onValue(usersRef, (snapshot) => {
-        const data = snapshot.val();
-        this.value = data.Time2.hour;
-      });
+    Swal.fire({
+      title: "ชั่วโมงต้องไม่เกิน 23",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+    });
+    onValue(usersRef, (snapshot) => {
+      const data = snapshot.val();
+      this.value = data.Time2.hour;
+    });
   }
   if(this.value===""){
-    alert("ห้ามใส่ค่าว่าง");
+    Swal.fire({
+      title: "ห้ามใส่ค่าว่าง!",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+    });
     onValue(usersRef, (snapshot) => {
       const data = snapshot.val();
       this.value = data.Time2.hour;
@@ -277,11 +385,38 @@ t2_hour.onchange = function() {
 };
 soiledit.onchange = function() {
   const usersRef = ref(database, "users");
+  var value ;
+  onValue(usersRef, (snapshot) => {
+    const data = snapshot.val();
+    value = data.MoistureThreshold.value;
+  });
+  if(this.value > 100){
+    Swal.fire({
+      title: "กรุณาใส่ค่าไม่เกิน 100 %",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+    });
+    this.value = value
+  }
   if(this.value===""){
-    alert("ห้ามใส่ค่าว่าง");
+    Swal.fire({
+      title: "ห้ามใส่ค่าว่าง!",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+    });
     onValue(usersRef, (snapshot) => {
       const data = snapshot.val();
-      this.value = data.MoistureThreshold.value;
+      this.value = value;
     });
   }
 };

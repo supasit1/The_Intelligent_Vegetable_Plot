@@ -1,52 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>main</title>
-    <script src="main.js" type="module"></script>
     <title>Main</title>
+    <script src="main.js" type="module"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://kit.fontawesome.com/6bea0281d1.js" crossorigin="anonymous"></script>
+    <!-- เรียกใช้งานไลบรารี tailwindcss -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+        }
+
+        h1 {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .btn-red {
+            background-color: #f56565;
+            border-color: #f56565;
+        }
+
+        .btn-green {
+            background-color: #48bb78;
+            border-color: #48bb78;
+        }
+
+        .center-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        /* .message-box {
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* เพิ่มเงาให้กับกล่อง */
+            /* background-color: white; /* กำหนดพื้นหลังเป็นสีขาว */
+        .button-effect {
+            transition-duration: 0.4s;
+            border: 2px solid #6B7280;
+        }
+
+        .button-effect:hover {
+            transform: scale(1.1);
+        }
+    </style>
 </head>
-<body>
-    <center>
-    <div>
-        <h1>The Intelligent Vegetable Plot</h1>
-        <h3 id="vegetname"></h3>
-        <img id="image" src="" alt="Firebase Image" height="500 px"><br>
-        <h3><span >เวลารดน้ำครั้งที่ 1</span><span style="padding-left: 10%;">เวลารดน้ำครั้งที่ 2 </span></h3>
-        <h3><span id="t1" style="padding-right: 50px"></span> <span id="t2" style="padding-left: 10%;"></span></h3>
-        <h3>Humidity = <span id="humidity"></span></h3>
-        <h3>Temperature = <span id="temperature"></span></h3>
-        <h3>Lux = <span id="lux"></span></h3>
-        <h3>Soilmoisture = <span id="soilmoisture"></span></h3>
-        <h3>Pumpstatus: <span id="pumpstatus"></span></h3>
-        <h3>Lightstatus: <span id="lightstatus"></span></h3>
-        <button id="pumpButton"></button>
-        <button id="lightButton"> </button>
-        <button id="logdatabtn">Log data</button>
-        <button id="logimgbtn">Log image</button><br>
-        <button id="editbtn">Edit Time</button>
-        <button id="complete">เสร็จสิ้นการปลูก</button>
-        <div id="edit-time" style="display: none;">
-            <label >เวลารดน้ำครั้งที่ 1</label>
-            <label >ชั่วโมง:</label>
-            <input type="number" id="t1_hour" name="hour" min="1" max="23">
-            <label for="minute">นาที:</label>
-            <input type="number" id="t1_minute" name="minute" min="0" max="59"><br>
-            <label>เวลารดน้ำครั้งที่ 2</label>
-            <label>ชั่วโมง:</label>
-            <input type="number" id="t2_hour" name="hour" min="1" max="23">
-            <label>นาที:</label>
-            <input type="number" id="t2_minute" name="minute" min="0" max="59"><br>
-            <label>ค่าความชื้นในดินที่ต้องการกำหนด:</label>
-            <input type="number" id="soiledit"  min="0" max="100"><br>
-            <label>ค่าแสงที่ต้องการกำหนด:</label>
-            <input type="number" id="luxedit"  min="0" max="9999"><br>
-            <button id="savebtn">Save</button>
-            <button id="cancelbtn">Cancel</button>
+
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4"> <!-- เพิ่มคลาส mx-auto เพื่อจัดเนื้อหาตรงกลาง -->
+        <h1 class="text-3xl font-bold text-center mb-8"><i class="fa-solid fa-seedling fa-flip" style="color: #63E6BE;"></i> The Intelligent Vegetable Plot</h1>
+        <h3 id="vegetname" class="text-lg mb-4 text-center animate__animated animate__bounceIn"></h3>
+        <img id="image" src="" alt="Firebase Image" class="h-96 mx-auto mb-8 border-4 border-green-300 rounded-lg shadow-lg nimate__animated animate__bounceIn">
+        <div class="grid grid-cols-2 gap-4 mt-4">
+            <div>
+                <h3 class="text-lg text-center animate__animated animate__bounceIn">เวลารดน้ำครั้งที่ 1</h3>
+                <div class="mb-4 p-4 border border-gray-300 rounded flex justify-center bg-white shadow-md font-bold text-blue-500 animate__animated animate__bounceIn">
+                    <h2 id="t1" class="mr-8"></h2><h2>น.</h2>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg text-center animate__animated animate__bounceIn">เวลารดน้ำครั้งที่ 2</h3>
+                <div class="mb-4 p-4 border rounded border-gray-300 flex justify-center bg-white shadow-md font-bold text-blue-500 nimate__animated animate__bounceIn">
+                    <h2 id="t2" class="mr-8"></h2><h2>น.</h2>
+                </div>
+            </div>
         </div>
         
-    </div> 
-    </center>
+        <div class="mb-4">
+            <div class="flex flex-col justify-center items-center animate__bounceIn">
+                <h3 class="text-lg w-full mb-4 p-4 border rounded border-gray-300 text-center bg-white shadow-md font-bold nimate__animated animate__bounceIn"><i class="fa-solid fa-droplet fa-bounce" style="color: #409fe7;"></i> Humidity <br><span id="humidity" class="font-bold text-blue-500"></span><span> %</span></h3>
+                <h3 class="text-lg w-full mb-4 p-4 border rounded border-gray-300 text-center bg-white shadow-md font-bold nimate__animated animate__bounceIn"><i class="fa fa-temperature-three-quarters fa-beat-fade" style="color: #63E6BE;"></i> Temperature <br><span id="temperature" class="font-bold text-blue-500"></span><span> °C</span></h3>
+                <h3 class="text-lg w-full mb-4 p-4 border rounded border-gray-300 text-center bg-white shadow-md font-bold nimate__animated animate__bounceIn"><i class="fa-solid fa-lightbulb fa-beat" style="color: #FFD43B;"></i>  Illuminance <br><span id="lux" class="font-bold text-blue-500"></span><span> LUX</span></h3>
+                <h3 class="text-lg w-full mb-4 p-4 border rounded border-gray-300 text-center bg-white shadow-md font-bold nimate__animated animate__bounceIn"><i class="fa-solid fa-mound fa-flip" style="color: #826464;"></i> Soilmoisture <br><span id="soilmoisture" class="font-bold text-blue-500"></span><span> %</span></h3>
+                <h3 class="text-lg w-full mb-4 p-4 border rounded border-gray-300 text-center bg-white shadow-md font-bold nimate__animated animate__bounceIn"><i class="fa-solid fa-faucet fa-bounce" style="color: #67869e;"></i> Pump<br><span id="pumpstatus" class="font-bold text-blue-500"></span></h3>
+                <h3 class="text-lg w-full mb-4 p-4 border rounded border-gray-300 text-center bg-white shadow-md font-bold nimate__animated animate__bounceIn"><i class="fa-solid fa-bolt fa-beat" style="color: #FFD43B;"></i> Light<br><span id="lightstatus" class="font-bold text-blue-500"></span></h3>
+            </div>
+        </div>
+        <body class="bg-gray-100">
+            <div class="container mx-auto p-4">
+                <!-- เนื้อหา -->
+                <div class="flex justify-center flex-wrap mb-4">
+                    <button id="pumpButton" class="btn-red text-white font-bold py-2 px-4 rounded mr-2 button-effect mb-2 shadow-md">Pump Button</button>
+                    <button id="lightButton" class="btn-red text-white font-bold py-2 px-4 rounded mr-2 button-effect mb-2 shadow-md">Light Button</button>
+                    <button id="logdatabtn" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mr-2 button-effect mb-2 shadow-md">Log Data <i class="fa-solid fa-database"></i></button>
+                    <button id="logimgbtn" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mr-2 button-effect mb-2 shadow-md">Log Image <i class="fa-solid fa-image"></i></button>
+                    <button id="editbtn" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded mr-2 button-effect mb-2 shadow-md">Edit <i class="fa-solid fa-gears"></i></button>
+                    <button id="complete" class="btn-green hover:bg-green-700 text-white font-bold py-2 px-4 rounded button-effect mb-2 shadow-md">เสร็จสิ้นการปลูก</button>
+                </div>
+        <div id="edit-time" class="hidden">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-lg">เวลารดน้ำครั้งที่ 1</label>
+                    <div class="flex mb-4">
+                        <input type="number" id="t1_hour" class="w-1/2 p-2 border border-gray-300 rounded-l-md mr-2" name="hour" min="1" max="23">
+                        <label for="minute" class="mr-2" style="font-size: 30px">:</label>
+                        <input type="number" id="t1_minute" class="w-1/2 p-2 border border-gray-300 rounded-r-md" name="minute" min="0" max="59">
+                        <span class="p-2">น.</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-lg">เวลารดน้ำครั้งที่ 2</label>
+                    <div class="flex mb-4">
+                        <input type="number" id="t2_hour" class="w-1/2 p-2 border border-gray-300 rounded-l-md mr-2" name="hour" min="1" max="23">
+                        <label class="mr-2" style="font-size: 30px">:</label>
+                        <input type="number" id="t2_minute" class="w-1/2 p-2 border border-gray-300 rounded-r-md" name="minute" min="0" max="59">
+                        <span class="p-2">น.</span>
+                    </div>
+                </div>
+            </div>
+            <label class="text-lg">ค่าความชื้นในดินที่ต้องการกำหนด %</label>
+            <input type="number" id="soiledit" class="w-full p-2 border border-gray-300 rounded-md mb-4" min="0" max="100"><br>
+            <label class="text-lg">ค่าแสงที่ต้องการกำหนด</label>
+            <input type="number" id="luxedit" class="w-full p-2 border border-gray-300 rounded-md mb-4" min="0" max="9999"><br>
+            <div class="flex justify-end mb-4">
+                <button id="savebtn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-2 button-effect">Save</button>
+                <button id="cancelbtn" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded button-effect">Cancel</button>
+            </div>
+        </div>
+    </div>
 </body>
+
 </html>

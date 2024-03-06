@@ -1,38 +1,75 @@
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <!DOCTYPE html>
 <html lang="en">
+<script src="index.js" type="module"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://kit.fontawesome.com/6bea0281d1.js" crossorigin="anonymous"></script>
 <head>
     <meta charset="UTF-8">
-    <script src="./index.js" type="module"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Preset</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+        }
+        h1 {
+            font-family: 'Roboto', sans-serif; /* เปลี่ยนแบบอักษรสำหรับ <h1> */
+            /* หรือจะเลือกแบบอักษรอื่นที่คุณต้องการ */
+        }
+        .button-effect {
+    transition-duration: 0.4s;
+    border: 2px solid #6B7280;
+}
+
+.button-effect:hover {
+    transform: scale(1.1);
+}
+    </style>
 </head>
-<body>
-    <h1>The Intelligent Vegetable Plot Preset</h1>
-    <label for="veget" style="font-size: 16px;">เลือกผักที่จะปลูก:</label>
-    <select name="veget" id="veget">
-        <option value="">กรุณาเลือกผัก</option>
-        <option value="Sun">ต้นอ่อนทานตะวัน</option>
-        <option value="coriander">ผักชี </option>
-        <option value="lettuce">ผักกาดหอม</option>
-        <option value="morningglory ">ผักบุ้งจีน</option>
-    </select><br>
-    <label>คำอธิบาย:</label><p id="description"></p>
-    <label>ค่าความชื้นในดินที่ต้องการกำหนด:</label>
-    <input type="number" id="soil"  min="0" max="100"><br>
-    <label>ค่าแสงที่ต้องการกำหนด:</label>
-    <input type="number" id="lux"  min="0" max="9999"><br>
-    <label >ช่วงเวลารดน้ำครั้งที่ 1</label>
-    <label >ชั่วโมง:</label>
-    <input type="number" id="t1_hour" name="hour" min="1" max="24">
-    <label for="minute">นาที:</label>
-    <input type="number" id="t1_minute" name="minute" min="0" max="59"><br>
-    <label>ช่วงเวลารดน้ำครั้งที่ 2</label>
-    <label>ชั่วโมง:</label>
-    <input type="number" id="t2_hour" name="hour" min="1" max="24">
-    <label>นาที:</label>
-    <input type="number" id="t2_minute" name="minute" min="0" max="59"><br>
-    <button id="confirm">ยืนยัน</button><br><br>
-    <button id="logdatabtn">Log Data</button>
-    <button id="logimgbtn">Log Image</button>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4 bg-white shadow-md rounded-md mt-8">
+        <h1 class="text-2xl font-bold text-center mb-4"><i class="fa-solid fa-seedling fa-flip" style="color: #63E6BE;"></i> The Intelligent Vegetable Plot Preset</h1>
+        <label for="veget" class="text-lg">เลือกผักที่จะปลูก :</label>
+        <select name="veget" id="veget" class="block w-full p-2 border border-gray-300 rounded-md mb-4">
+            <option value="">กรุณาเลือกผัก</option>
+            <option value="Sun">ต้นอ่อนทานตะวัน</option>
+            <option value="coriander">ผักชี</option>
+            <option value="lettuce">ผักกาดหอม</option>
+            <option value="morningglory">ผักบุ้งจีน</option>
+        </select>
+        <label for="description" class="text-lg">คำอธิบาย :</label>
+        <p id="description" class="mb-4"></p>
+        <label for="soil" class="text-lg">ค่าความชื้นในดินที่ต้องการกำหนด %</label>
+        <input type="number" id="soil" class="block w-full p-2 border border-gray-300 rounded-md mb-4" min="0" max="100">
+        <label for="lux" class="text-lg">ค่าแสงที่ต้องการกำหนด (Lux)</label>
+        <input type="number" id="lux" class="w-full p-2 border border-gray-300 rounded-md mb-4" min="0" max="9999">
+        <label class="text-lg block mb-2 flex items-center">ช่วงเวลารดน้ำครั้งที่ 1</label>
+<div class="flex mb-4">
+    <input type="number" id="t1_hour" class="w-1/2 p-2 border border-gray-300 rounded-l-md" name="hour" min="1" max="23">
+    <span class="p-2" style="font-size: 30px">:</span>
+    <input type="number" id="t1_minute" class="w-1/2 p-2 border border-gray-300 rounded-r-md" name="minute" min="0" max="59">
+    <span class="p-2">น.</span> 
+</div>
+<label class="text-lg block mb-2 flex items-center">ช่วงเวลารดน้ำครั้งที่ 2</label>
+<div class="flex mb-4">
+    <input type="number" id="t2_hour" class="w-1/2 p-2 border border-gray-300 rounded-l-md" name="hour" min="1" max="23">
+    <span class="p-2" style="font-size: 30px">:</span>
+    <input type="number" id="t2_minute" class="w-1/2 p-2 border border-gray-300 rounded-r-md" name="minute" min="0" max="59">
+    <span class="p-2">น.</span> 
+</div>
+        <div class="flex justify-between">
+            <button id="confirm" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded button-effect">ยืนยัน</button>
+            <div>
+                <button id="logdatabtn" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mr-2 button-effect">Log Data <i class="fa-solid fa-database"></i></button>
+                <button id="logimgbtn" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded button-effect">Log Image <i class="fa-solid fa-image"></i></button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
+
+
