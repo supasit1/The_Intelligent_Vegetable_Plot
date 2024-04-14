@@ -8,7 +8,7 @@ const storage = getStorage(app);
 const storageRef = ref(storage, 'Record/');
 
 
-const imagesPerPage = 50;
+const imagesPerPage = 30;
 let currentPage = 1;
 let totalImages =0;
 let totalPages =0;
@@ -36,84 +36,93 @@ function epochToDateTime(epochTime){
 function epochToJsDate(epochTime){
   return new Date(epochTime*1000);
 }
-function displayImages(startIndex, endIndex) {
-  startIndex = (currentPage-1 ) * imagesPerPage;
-  endIndex = startIndex + imagesPerPage;
-
+function displayImages(pageNumber, imagesPerPage) {
+  const startIndex = (pageNumber - 1) * imagesPerPage;
+  const endIndex = startIndex + imagesPerPage;
   tbody.innerHTML = ''; // Clear previous images
-
-  // Get all the images from the storage
   listAll(storageRef).then(function(result) {
-    totalImages = result.items.length;
-    totalPages = Math.ceil(totalImages / imagesPerPage);
-    var fileNameA
-    var fileNameB
-    totalPagesElement.textContent = totalPages;
-    currentPageElement.textContent = currentPage;
+      // Retrieve all image items
+      const items = result.items;
 
-    result.items.sort((a, b) => {
-      // Extract the file names from the full paths
-      fileNameA = epochToDateTime(a.name.split('/').pop());
-      fileNameB = epochToDateTime(b.name.split('/').pop());
-      // Compare file names and return the result
-      return fileNameB.localeCompare(fileNameA);
-    }).slice(startIndex, endIndex).forEach(function(imageRef=fileNameB, index) {
-      // Get the download URL for each image
-      getDownloadURL(imageRef).then(function(url) {
-        //console.log(imageRef);
-        // Create a new table row
-        const row = document.createElement('tr');
-        // Create table data for image number
-        const numberCell = document.createElement('td');
-        numberCell.textContent = img_i; // Display image number
-        img_i++;
-        row.appendChild(numberCell);
-        // Create table data for image name
-        const nameCell = document.createElement('td');
-        nameCell.textContent = epochToDateTime(imageRef.name);
-        row.appendChild(nameCell);
-
-        // Create table data for image
-        const imageCell = document.createElement('td');
-        const img = document.createElement('img');
-        img.src = url;
-        img.style.width = '300px'; // Set the width of the image (adjust as needed)
-        img.style.height = 'auto'; // Set the height of the image (adjust as needed)
-        img.style.paddingLeft = '32%'; // Set the position
-        imageCell.appendChild(img);
-        row.appendChild(imageCell);
-
-        // Append the new row to the table body
-        tbody.appendChild(row);
-      }).catch(function(error) {
-        console.error('Error getting download URL:', error);
+      // Get download URL for each image and store them in an array
+      const promises = items.map(imageRef => {
+          return getDownloadURL(imageRef).then(url => {
+              // Extract timestamp from imageRef name
+              const timestamp = parseInt(imageRef.name.split('.')[0]);
+              return { url, timestamp };
+          });
       });
-    });
-    
-  }).catch(function(error) {  
-    console.error('Error listing images:', error);
+
+      // Resolve all promises to get the array of objects containing URL and timestamp
+      Promise.all(promises).then(images => {
+          // Sort images based on timestamp in ascending order
+          images.sort((a, b) => a.timestamp - b.timestamp);
+
+          // Slice images based on pagination
+          const slicedImages = images.slice(startIndex, endIndex);
+
+          // Create table rows and populate the table
+          slicedImages.forEach((image, index) => {
+              // Create table row
+              const row = document.createElement('tr');
+
+              // Add No.
+              const cellNo = document.createElement('td');
+              cellNo.textContent = startIndex + index + 1; // Adjust for pagination
+              row.appendChild(cellNo);
+              
+              // Add ชื่อ
+              const cellName = document.createElement('td');
+              cellName.textContent = epochToDateTime(image.timestamp);
+              row.appendChild(cellName);
+
+              // Add รูปภาพ
+              const imageCell = document.createElement('td');
+              const img = document.createElement('img');
+              img.src = image.url;
+              img.style.width = '300px'; // Set the width of the image (adjust as needed)
+              img.style.height = 'auto'; // Set the height of the image (adjust as needed)
+              img.style.paddingLeft = '32%'; // Set the position
+              imageCell.appendChild(img);
+              row.appendChild(imageCell);
+
+              // Append row to table body
+              tbody.appendChild(row)
+          });
+
+          // Calculate total pages
+          totalImages = images.length;
+          console.log(totalImages);
+          totalPages = Math.ceil(totalImages / imagesPerPage);
+          totalPagesElement.textContent = totalPages;
+          currentPageElement.textContent = currentPage;
+      }).catch(error => {
+          console.error('Error fetching image URLs:', error);
+      });
+  }).catch(error => {
+      console.error('Error listing images:', error);
   });
 }
+displayImages(currentPage, imagesPerPage);
 prevPageButton.addEventListener('click', function() {
+  console.log(totalPages)
   if (currentPage > 1) {
-    currentPage--;
-    displayImages();
+      currentPage--;
+      displayImages(currentPage, imagesPerPage);
   }
 });
 
 nextPageButton.addEventListener('click', function() {
+  console.log(totalPages)
   if (currentPage < totalPages) {
-    currentPage++;
-    displayImages();
+      currentPage++;
+      displayImages(currentPage, imagesPerPage);
+      console.log(imagesPerPage)
   }
 });
 mainbtn.addEventListener('click', function() {
     window.location.href = 'main.html';
 });
-window.onload = function() {
-  displayImages();
-};
-
 const DownloadButtonElement = document.getElementById('download-button');
 DownloadButtonElement.addEventListener('click', (e) => {
   let timerInterval;
@@ -164,31 +173,69 @@ DownloadButtonElement.addEventListener('click', (e) => {
     }
   });
 });
-
-
-
 function exportToCSV() {
+  // Initialize an empty array to store image data
+  let imageData = [];
+  listAll(storageRef).then(function(result) {
+      // Retrieve all image items
+      const items = result.items;
+      // Get download URL for each image and store them in an array
+      const promises = items.map(imageRef => {
+          return getDownloadURL(imageRef).then(url => {
+              // Extract timestamp from imageRef name
+              const timestamp = parseInt(imageRef.name.split('.')[0]);
+              const name = imageRef.name
+              return { url, timestamp,name };
+          });
+      });
+
+      // Resolve all promises to get the array of objects containing URL and timestamp
+      Promise.all(promises).then(images => {
+          // Sort images based on timestamp in ascending order
+          images.sort((a, b) => a.timestamp - b.timestamp);
+          images.forEach((image, index) => {
+            console.log(image.name);
+            imageData.push({
+              url: image.url,
+              name: image.name,
+              datetime: epochToDateTime(image.timestamp)
+            });
+  
+            // Check if all images are processed
+            if (imageData.length === result.items.length) {
+              // Call function to generate CSV
+              generateCSV(imageData);
+            }
+          });
+      }).catch(error => {
+          console.error('Error fetching image URLs:', error);
+      });
+  }).catch(error => {
+      console.error('Error listing images:', error);
+  });
+
+}
+function generateCSV(imageData) {
+  // Define CSV content
   let csvContent = "data:text/csv;charset=utf-8,";
-  const tableHeaderCells = document.querySelectorAll('#theader th');
-  tableHeaderCells.forEach(function (header) {
-    csvContent += header.textContent + ",";
+  csvContent += "Image Name,Date Time,Image URL\n";
+
+  // Iterate through each image data
+  imageData.forEach(function(image) {
+    // Concatenate image data into CSV format
+    let row = `${image.name},${image.datetime},${image.url}\n`;
+    csvContent += row;
   });
-  csvContent += "\n";
-  const tableRows = document.querySelectorAll('#tbody tr');
-  tableRows.forEach(function (row) {
-    const tableCells = row.querySelectorAll('td');
-    tableCells.forEach(function (cell) {
-      csvContent += cell.textContent;
-      const imgSrc = cell.querySelector('img')?.src || ''; // Get img src or empty string if img element does not exist
-      csvContent += imgSrc + ",";
-      console.log(imgSrc);
-    });
-    csvContent += "\n";
-  });
+
+  // Create a virtual link element to trigger the CSV download
   const encodedUri = encodeURI(csvContent);
-  const link = document.createElement('a');
-  link.setAttribute('href', encodedUri);
-  link.setAttribute('download', 'log_img.csv');
-  document.body.appendChild(link); // Required for Firefox
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "log_img.csv");
+
+  // Append the link to the body
+  document.body.appendChild(link);
+
+  // Trigger the click event to initiate the download
   link.click();
 }

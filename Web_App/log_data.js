@@ -173,12 +173,12 @@ DownloadButtonElement.addEventListener('click', (e) => {
             }).then((result) => {
                 if (result.isConfirmed) {
                     console.log("Delete all Data");
+                    //deleteData();
                     Swal.fire({
                         title: "ลบข้อมมูลเรียบร้อย!",
                         text: "ข้อมูลได้ถูกลบออกหมดแล้ว",
                         icon: "success"
                     }).then(() => {
-                        deleteData();
                         location.reload();
                     });
                 }

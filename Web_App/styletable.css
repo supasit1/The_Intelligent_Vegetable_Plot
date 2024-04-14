@@ -134,3 +134,27 @@ tr:hover {
         width: 100%;
     }
 }
+@media screen and (max-width: 450px) {
+    #theader th {
+        font-family: 'Prompt', sans-serif;
+        font-size: 0.5rem; /* ลดขนาดตัวอักษรเมื่อเป็นมือถือ */
+        padding: 8px; /* ปรับขนาดการเว้นระยะของส่วนหัว */
+    }
+    body {
+        margin: 0;
+        width: 110%;
+        background-color: #f3f4f6; /* เพิ่มสีพื้นหลัง */
+    }
+}
+@media screen and (max-width: 376px) {
+    #theader th {
+        font-family: 'Prompt', sans-serif;
+        font-size: 0.5rem; /* ลดขนาดตัวอักษรเมื่อเป็นมือถือ */
+        padding: 8px; /* ปรับขนาดการเว้นระยะของส่วนหัว */
+    }
+    body {
+        margin: 0;
+        width: 115%;
+        background-color: #f3f4f6; /* เพิ่มสีพื้นหลัง */
+    }
+}

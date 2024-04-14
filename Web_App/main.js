@@ -12,12 +12,12 @@ var darkModeQuery = window.matchMedia('(prefers-color-scheme: light)');
 function handleThemeChange(e) {
     if (e.matches) {
       // ถ้าโหมดสีเป็น Dark Mode
-      console.log('Dark Mode enabled');
+      //console.log('Dark Mode enabled');
       themeToggle.value = "dark";
       // ทำสิ่งที่คุณต้องการเมื่ออยู่ใน Dark Mode
     } else {
       // ถ้าโหมดสีเป็น Light Mode
-      console.log('Light Mode enabled');
+      //console.log('Light Mode enabled');
       themeToggle.value = "light";
       // ทำสิ่งที่คุณต้องการเมื่ออยู่ใน Light Mode
     }
@@ -26,12 +26,12 @@ function handleThemeChange(e) {
 // ตรวจสอบค่าเริ่มต้นของโหมดโทนสีและตั้งค่าให้เป็น Light Mode
 if (!darkModeQuery.matches) {
   // ถ้าไม่ใช่ Dark Mode
-  console.log('Starting in Light Mode');
+  //console.log('Starting in Light Mode');
   themeToggle.value = "dark"; // เรียกใช้ฟังก์ชันที่ตรวจสอบโหมดเพื่อตั้งค่าเป็น Light Mode
   handleThemeChange(darkModeQuery);
 } 
 else {
-  console.log('Starting in Dark Mode');
+  //console.log('Starting in Dark Mode');
   // ถ้าเป็น Dark Mode
   themeToggle.value = "light";
   handleThemeChange(darkModeQuery); // เรียกใช้ฟังก์ชันที่ตรวจสอบโหมดเพื่อการจัดการตามเงื่อนไข
@@ -40,7 +40,7 @@ else {
 const FirstcheckRef = ref(database, 'users/Firstcheck/value');
 get(FirstcheckRef).then((snapshot)=>{
   const firstcheckValue = snapshot.val();
-  console.log('firstcheckValue get= ',firstcheckValue);
+  //console.log('firstcheckValue get= ',firstcheckValue);
   if (firstcheckValue === "0") {
     window.location.href = 'index.html';
   }
@@ -96,12 +96,11 @@ onValue(usersRef, (snapshot) => {
   t2_hour.value = data.Time2.hour;
   t1_minute.value = data.Time1.minute;
   t2_minute.value = data.Time2.minute;
-  luxedit.value = `${data.LuxThreshold.value}`;
-  soiledit.value = `${data.MoistureThreshold.value}`;
-  vegetname.innerText = `${data.Vegetable.name}`;
+  luxedit.value = data.LuxThreshold.value;
+  soiledit.value = data.MoistureThreshold.value;
+  vegetname.innerHTML = `<i class="fa-solid fa-seedling fa-flip" style="color: #63E6BE;"></i>${data.Vegetable.name}`;
   pumpButton.innerText = `${data.PumpStatus.value}` === "0" ? "Switch\nPump Off" : "Switch\nPump On";
   lightButton.innerText = `${data.LightStatus.value}` === "0" ? " Switch\nLight Off" : "Switch\nLight On";
-  //css button
   pumpButton.classList.remove(`${data.PumpStatus.value}` === "0" ? 'btn-green-500' : 'btn-red-500');
   pumpButton.classList.add(`${data.PumpStatus.value}` === "0" ? 'btn-red-500' : 'btn-green-500');
   lightButton.classList.remove(`${data.LightStatus.value}` === "0" ? 'btn-green-500' : 'btn-red-500');
@@ -138,7 +137,7 @@ function set_pumpStatus(newValue) {
     value: PumpvalueToSet
   })
     .then(() => {
-      console.log("Pump Status saved successfully!");
+      //console.log("Pump Status saved successfully!");
     })
     .catch((error) => {
       console.error("The write failed...", error);
@@ -169,7 +168,7 @@ function set_lightStatus(newValue) {
     value: LightvalueToSet
   })
     .then(() => {
-      console.log("Light Status saved successfully!");
+      //console.log("Light Status saved successfully!");
     })
     .catch((error) => {
       console.error("The write failed...", error);
@@ -202,6 +201,8 @@ function saveEditedTime() {
     hour: parseInt(t2_hour.value, 10),
     minute: parseInt(t2_minute.value, 10)
   };
+  const soilData = parseInt(soiledit.value, 10);
+  const luxData = parseInt(luxedit.value,10)
   Swal.fire({
     title: "คุณจะทำการบันทึกค่าหรือไม่?",
     icon: "warning",
@@ -228,8 +229,12 @@ function saveEditedTime() {
         // บันทึกข้อมูลลงใน Realtime database
         set(Time1Ref, time1Data);
         set(Time2Ref, time2Data);
-        set(soileditRef, parseInt(soiledit.value), 10);
-        set(luxeditRef, parseInt(luxedit.value), 10);
+        set(soileditRef,soilData);
+        set(luxeditRef,luxData);
+        // console.log(time1Data);
+        // console.log(time2Data);
+        // console.log(soilData);
+        // console.log(luxData);
         document.getElementById("edit-time").style.display = "none";
     }
 });
