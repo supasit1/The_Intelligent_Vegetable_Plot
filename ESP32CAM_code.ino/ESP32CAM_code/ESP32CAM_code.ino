@@ -28,15 +28,12 @@
 const char* AP_ssid = "ESP32-CAM";
 const char* AP_password = "1234567890";
 AsyncWebServer server(80);
-
 //Replace with your network credentials
 String ssid = "1IPHONE";
 String password = "0820db02";
 String user_lightstatus = "0";
 String user_pumpstatus = "0";
 String first_check ="0";
-unsigned long previousMillis = 0;
-const unsigned long interval = 500; // Interval in milliseconds
 //record photo preset
 const char* ntpServer = "asia.pool.ntp.org"; // เซิร์ฟเวอร์ NTP ในภูมิภาคเอเชีย
 int timezone = 7 * 3600;
@@ -60,18 +57,13 @@ const unsigned long PHOTO_INTERVAL = 60; // 1 minute interval for testing
 #define VSYNC_GPIO_NUM    25
 #define HREF_GPIO_NUM     23
 #define PCLK_GPIO_NUM     22
-
 boolean takeNewPhoto = true;
-
 //Define Firebase Data objects
 FirebaseData fbdo;
 FirebaseAuth auth;
 FirebaseConfig configF;
-
-void fcsUploadCallback(FCS_UploadStatusInfo info);
 bool check_status_wifi = false;
-bool taskCompleted = false;
-int i = 0;
+void fcsUploadCallback(FCS_UploadStatusInfo info);
 // Capture Photo and Save it to LittleFS
 void capturePhotoSaveLittleFS(char FILE_PHOTO_PATHS[100]) {
 
@@ -113,7 +105,6 @@ void capturePhotoSaveLittleFS(char FILE_PHOTO_PATHS[100]) {
   file.close();
   esp_camera_fb_return(fb);
 }
-
 void initWiFi(){
   WiFi.begin(ssid.c_str(), password.c_str());
   while (WiFi.status() != WL_CONNECTED) {
@@ -123,7 +114,6 @@ void initWiFi(){
   check_status_wifi = true;
   Serial.println("Connected to WiFi");
 }
-
 void initCamera(){
  // OV2640 camera module
   camera_config_t config;
@@ -178,30 +168,25 @@ void read_from_text(){
     Serial.println("An Error has occurred while mounting SPIFFS");
     //return;
   }
-
   // อ่านข้อมูล SSID และ Password จากไฟล์เชิงข้อมูล
   File file_r = LittleFS.open("/wifi_config.txt","r");
   if (!file_r) {
     Serial.println("Failed to open wifi_config.txt file");
     //return;
   }
-
   // อ่านข้อมูล SSID และ Password จากไฟล์
   String wifiConfig = file_r.readString();
   Serial.print("wifiConfig: ");
   Serial.println(wifiConfig);
   file_r.close();
-
   // แยกข้อมูล SSID และ Password จากข้อมูลที่อ่านได้
   int separatorIndex = wifiConfig.indexOf(",");
   if (separatorIndex == -1) {
     Serial.println("Invalid wifi_config.txt file format");
     //return;
   }
-  
   ssid = wifiConfig.substring(0, separatorIndex).c_str();
   password = wifiConfig.substring(separatorIndex + 1).c_str();
-
   Serial.print("SSID: ");
   Serial.println(ssid);
   Serial.print("Password: ");
@@ -232,7 +217,6 @@ void Firebase_GET(){
   else {
     Serial.println(fbdo.errorReason());
   }
-  
   //PumpStatus
   if (Firebase.RTDB.getString(&fbdo, "users/PumpStatus/value")) {
     user_pumpstatus = fbdo.stringData().c_str();
@@ -252,133 +236,33 @@ void Firebase_GET(){
     Serial.println(fbdo.errorReason());
   }
 }
-void setup() {
-  // Turn-off the 'brownout detector'
-  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
-  // Serial port for debugging purposes
-  Serial.begin(115200);
-  WiFi.mode(WIFI_AP_STA);
-  // Set ESP32-CAM as AP
-  WiFi.softAP(AP_ssid, AP_password);
- 
-
-  // Start web server
-  server.on("/", HTTP_GET, handleRoot);
-  server.on("/save", HTTP_POST,handleSave);
-  server.begin();
-  Serial.println("HTTP server started");
-  read_from_text();//อ่าน ssid และ password จากไฟล์ text
-  initWiFi();// เชื่อมต่อไวไฟ
-  initCamera();
-
-  //Firebase
-  // Assign the api key
-  configF.api_key = API_KEY;
-  //Assign the user sign in credentials
-  auth.user.email = USER_EMAIL;
-  auth.user.password = USER_PASSWORD;
-  //Assign the callback function for the long running token generation task
-  configF.token_status_callback = tokenStatusCallback; //see addons/TokenHelper.h
-  configF.database_url = DATABASE_URL;
-  Firebase.begin(&configF, &auth);
-  Firebase.reconnectWiFi(true);
-  setTimeZone();
-  configTime(0, 0, ntpServer);
-  takeNewPhoto = true;
-}
-
-void loop(){
-  Firebase_GET();
-  if(user_lightstatus == "0" && user_pumpstatus == "0" && first_check =="0"){
-    Serial.println("System off");
+void handleRoot( AsyncWebServerRequest *request) {
+  String html = "<html><body><center>";
+  html += "<h1>ESP32-CAM WiFi Configuration</h1>";
+  if(check_status_wifi == false){
+    html += "<h3>Not connected to wifi</h3>";
   }
   else{
-    IPAddress IP = WiFi.softAPIP();
-    Serial.print("AP IP address: ");
-    Serial.println(IP);
-    //Streaming videos
-    unsigned long currentMillis = millis();
-    time_t now;
-    struct tm timeinfo;
-    time(&now);
-    int timestamp = now;
-    localtime_r(&now, &timeinfo);
-    configTime(timezone, 0, ntpServer);
-   
-    if ((timeinfo.tm_hour == 8 && timeinfo.tm_min == 0 && timeinfo.tm_sec <= 1) || 
-        (timeinfo.tm_hour == 12 && timeinfo.tm_min == 0 && timeinfo.tm_sec <= 1) || 
-        (timeinfo.tm_hour == 16 && timeinfo.tm_min == 0 && timeinfo.tm_sec <= 1)
-        &&(now - lastPhotoTimestamp >= PHOTO_INTERVAL))
-    {
-      Serial.println("Record Photo");
-      if (takeNewPhoto) {
-        // Format the filename with date and time
-        char filename[50];
-        char BUCKETREC_PHOTO[50];
-        sprintf(filename, "/%d.jpg",timestamp);
-        sprintf(BUCKETREC_PHOTO, "/Record/%d",timestamp);
-        // Capture and save the photo
-        capturePhotoSaveLittleFS(filename);
-        takeNewPhoto = false;
-
-        if (Firebase.ready() && !taskCompleted){
-          taskCompleted = true;
-          Serial.print("Uploading picture... ");
-
-          // Upload the photo to Firebase Storage mem_storage_type_flash
-          if (Firebase.Storage.upload(&fbdo, STORAGE_BUCKET_ID, filename, mem_storage_type_flash,BUCKETREC_PHOTO, "image/jpeg", fcsUploadCallback)){
-            Serial.printf("\nDownload URL: %s\n", fbdo.downloadURL().c_str());
-          }
-          else{
-            Serial.println(fbdo.errorReason());
-          }
-        }
-        taskCompleted = false;
-        if (LittleFS.remove(filename)) {
-        Serial.println("File deleted successfully");
-        } 
-        else {
-          Serial.println("Error deleting file");
-        }
-      }
-      lastPhotoTimestamp = now;
-      
-    }
-    else{
-      if (takeNewPhoto) {
-        capturePhotoSaveLittleFS(FILE_PHOTO_PATH);//#define FILE_PHOTO_PATH "/photo.jpg"
-        takeNewPhoto = false;
-
-        if (Firebase.ready() && !taskCompleted){
-          taskCompleted = true;
-          Serial.print("Uploading picture... ");
-
-          // MIME type should be valid to avoid the download problem.
-          // The file systems for flash and SD/SDMMC can be changed in FirebaseFS.h.
-          if (Firebase.Storage.upload(&fbdo, STORAGE_BUCKET_ID /* Firebase Storage bucket id */, FILE_PHOTO_PATH /* path to local file */, mem_storage_type_flash /* memory storage type, mem_storage_type_flash and mem_storage_type_sd */, BUCKET_PHOTO /* path of remote file stored in the bucket */, "image/jpeg" /* mime type */,fcsUploadCallback)){
-            if (Firebase.RTDB.setString(&fbdo, "Data/Streaming/", fbdo.downloadURL().c_str())){
-              Serial.println("Realtime");
-              Serial.printf("\nDownload URL: %s\n", fbdo.downloadURL().c_str());
-            }
-            else {
-              Serial.println("FAILED");
-              Serial.println("REASON: " + fbdo.errorReason());
-            }
-          }
-          else{
-            Serial.println(fbdo.errorReason());
-          }
-        }
-        taskCompleted = false;
-      } 
-    }
-    takeNewPhoto = true;
-    //Check if it's time to take a photo
+    html += "<h3>connected to wifi ssid: "+ssid+"</h3>";
   }
-  delay(100); // Add a small delay to improve stability
+  html += "<form action='/save' method='POST'>";
+  html += "SSID: <input type='text' name='ssid' value='" + ssid + "'><br><br>";  // เพิ่ม value='" + stationSSID + "'
+  html += "Password: <input type='password' name='password'><br><br>";  // เพิ่ม value='" + stationPassword + "'
+  html += "<input type='submit' value='Save' style='font-size: 24px;'>";
+  html += "</form><center></body></html>";
+  request->send(200, "text/html", html);
 }
-
-// The Firebase Storage upload callback function
+void handleSave(AsyncWebServerRequest *request) {
+  ssid = request->arg("ssid");
+  password = request->arg("password");
+  Serial.println("New SSID:" + ssid);
+  Serial.println("New Password:" + password);
+  String script = "<script>window.location.href = 'http://192.168.4.1/';</script>";
+  save_to_text();
+  read_from_text();
+  initWiFi();
+  request->send(200, "text/html", script);
+}
 void fcsUploadCallback(FCS_UploadStatusInfo info){
     if (info.status == firebase_fcs_upload_status_init){
         Serial.printf("Uploading file %s (%d) to %s\n", info.localFileName.c_str(), info.fileSize, info.remoteFileName.c_str());
@@ -412,37 +296,104 @@ void fcsUploadCallback(FCS_UploadStatusInfo info){
         Serial.printf("Upload failed, %s\n", info.errorMsg.c_str());
     }
 }
-
-void handleRoot( AsyncWebServerRequest *request) {
-  String html = "<html><body><center>";
-  html += "<h1>ESP32-CAM WiFi Configuration</h1>";
-  if(check_status_wifi == false){
-    html += "<h3>Not connected to wifi</h3>";
+void setup() {
+  // Turn-off the 'brownout detector'
+  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
+  // Serial port for debugging purposes
+  Serial.begin(115200);
+  WiFi.mode(WIFI_AP_STA);
+  // Set ESP32-CAM as AP
+  WiFi.softAP(AP_ssid, AP_password);
+  // Start web server
+  server.on("/", HTTP_GET, handleRoot);
+  server.on("/save", HTTP_POST,handleSave);
+  server.begin();
+  Serial.println("HTTP server started");
+  read_from_text();//อ่าน ssid และ password จากไฟล์ text
+  initWiFi();// เชื่อมต่อไวไฟ
+  initCamera();
+  IPAddress IP = WiFi.softAPIP();
+  //Firebase
+  // Assign the api key
+  configF.api_key = API_KEY;
+  //Assign the user sign in credentials
+  auth.user.email = USER_EMAIL;
+  auth.user.password = USER_PASSWORD;
+  //Assign the callback function for the long running token generation task
+  configF.token_status_callback = tokenStatusCallback; //see addons/TokenHelper.h
+  configF.database_url = DATABASE_URL;
+  Firebase.begin(&configF, &auth);
+  Firebase.reconnectWiFi(true);
+  setTimeZone();
+  configTime(0, 0, ntpServer);
+  takeNewPhoto = true;
+}
+void loop(){
+  Firebase_GET();
+  if(user_lightstatus == "0" && user_pumpstatus == "0" && first_check =="0"){
+    Serial.println("System off");
   }
   else{
-    html += "<h3>connected to wifi ssid: "+ssid+"</h3>";
+    time_t now;
+    struct tm timeinfo;
+    time(&now);
+    int timestamp = now;
+    localtime_r(&now, &timeinfo);
+    configTime(timezone, 0, ntpServer);
+    if((timeinfo.tm_hour == 8 && timeinfo.tm_min == 0 && timeinfo.tm_sec <= 1) || 
+      (timeinfo.tm_hour == 12 && timeinfo.tm_min == 0 && timeinfo.tm_sec <= 1) || 
+      (timeinfo.tm_hour == 16 && timeinfo.tm_min == 0 && timeinfo.tm_sec <= 1)
+      &&(now - lastPhotoTimestamp >= PHOTO_INTERVAL)){
+      Serial.println("Record Photo");
+      if (takeNewPhoto) {// Format the filename with date and time
+        char filename[50];
+        char BUCKETREC_PHOTO[50];
+        sprintf(filename, "/%d.jpg",timestamp);
+        sprintf(BUCKETREC_PHOTO, "/Record/%d",timestamp);
+        capturePhotoSaveLittleFS(filename);// Capture and save the photo
+        takeNewPhoto = false;
+        if (Firebase.ready()){// Upload the photo to Firebase Storage mem_storage_type_flash
+          if (Firebase.Storage.upload(&fbdo, STORAGE_BUCKET_ID, filename, mem_storage_type_flash,BUCKETREC_PHOTO, "image/jpeg", fcsUploadCallback)){
+            Serial.printf("\nDownload URL: %s\n", fbdo.downloadURL().c_str());
+          }
+          else{
+            Serial.println(fbdo.errorReason());
+          }
+        }
+        if (LittleFS.remove(filename)) {
+        Serial.println("File deleted successfully");
+        } 
+        else {
+          Serial.println("Error deleting file");
+        }
+      }
+      lastPhotoTimestamp = now;
+    }
+    else{
+      if (takeNewPhoto) {
+        capturePhotoSaveLittleFS(FILE_PHOTO_PATH);//#define FILE_PHOTO_PATH "/photo.jpg"
+        takeNewPhoto = false;
+        if (Firebase.ready()){
+          if (Firebase.Storage.upload(&fbdo, STORAGE_BUCKET_ID, FILE_PHOTO_PATH, mem_storage_type_flash , BUCKET_PHOTO , "image/jpeg" ,fcsUploadCallback)){
+            if (Firebase.RTDB.setString(&fbdo, "Data/Streaming/", fbdo.downloadURL().c_str())){
+              Serial.println("Realtime");
+              Serial.printf("\nDownload URL: %s\n", fbdo.downloadURL().c_str());
+            }
+            else {
+              Serial.println("FAILED");
+              Serial.println("REASON: " + fbdo.errorReason());
+            }
+          }
+          else{
+            Serial.println(fbdo.errorReason());
+          }
+        }
+      } 
+    }
+    takeNewPhoto = true;//Check if it's time to take a photo  
   }
-  html += "<form action='/save' method='POST'>";
-  html += "SSID: <input type='text' name='ssid' value='" + ssid + "'><br><br>";  // เพิ่ม value='" + stationSSID + "'
-  html += "Password: <input type='password' name='password'><br><br>";  // เพิ่ม value='" + stationPassword + "'
-  html += "<input type='submit' value='Save' style='font-size: 24px;'>";
-  html += "</form><center></body></html>";
-  request->send(200, "text/html", html);
+  delay(100); // Add a small delay to improve stability
 }
-
-void handleSave(AsyncWebServerRequest *request) {
-  ssid = request->arg("ssid");
-  password = request->arg("password");
-  Serial.println("New SSID:" + ssid);
-  Serial.println("New Password:" + password);
-  String script = "<script>window.location.href = 'http://192.168.4.1/';</script>";
-  save_to_text();
-  read_from_text();
-  initWiFi();
- 
-  request->send(200, "text/html", script);
-}
-
 
 // FRAMESIZE_UXGA: 1600x1200 pixels
 // FRAMESIZE_SXGA: 1280x1024 pixels
