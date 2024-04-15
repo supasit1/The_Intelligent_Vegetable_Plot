@@ -10,7 +10,6 @@
 #include <TimeLib.h>
 #include <LittleFS.h>
 #include <addons/TokenHelper.h> //Provide the token generation process info.
-
 //set ค่าการทำงาน เซ็นเซอร์
 #define DHT_PIN 15 //DHT22 pin 15
 #define BH1750_ADDR  (0x5C) //RX
@@ -22,7 +21,7 @@ const int relayLightPin = 19; // ตั้งค่า pin ส้ม ของ R
 int soilMoisture =0;
 float humidity = 0;
 float temperature = 0;
-uint16_t lux = 0;
+float lux;
 String  pumpstatus = "1"; // สถานะ (1: เปิด, 0: ปิด)
 String  lightstatus = "1";
 //user setting
@@ -45,7 +44,7 @@ FirebaseConfig config;
 AsyncWebServer server(80);
 bool signupOK = false;
 unsigned long sendDataPrevMillis = 0;
-
+unsigned long sendData_timestamp = 3600000;
 //Set wifi AP/Station
 String stationSSID = "IPHONE";//I PHONE
 String stationPassword= "123456789";
@@ -63,16 +62,14 @@ struct usertime{
 };
 usertime time1,time2;
 int timestamp;
-int Time_i= 12; // ส่งทุกๆ 1 นาที 
+
 String first_check ="0";
 
 void Firebase_SET(){
-  if (Firebase.ready() && (millis() - sendDataPrevMillis > 5000 || sendDataPrevMillis == 0)){
+  if (Firebase.ready() && (millis() - sendDataPrevMillis > 1000 || sendDataPrevMillis == 0)){
     sendDataPrevMillis = millis();
-    Time_i++;
-    Serial.printf(" Time_i: %d\n",Time_i);
     //Temperature
-    if (Firebase.RTDB.setFloat(&fbdo, "Data/Temperature", temperature)){
+    if (Firebase.RTDB.setInt(&fbdo, "Data/Temperature", temperature)){
       Serial.printf("PASSED temperature: %.2f\n", temperature);
     }
     else {
@@ -83,7 +80,7 @@ void Firebase_SET(){
       }
     }
     //Humidity
-    if (Firebase.RTDB.setFloat(&fbdo, "Data/Humidity", humidity)){
+    if (Firebase.RTDB.setInt(&fbdo, "Data/Humidity", humidity)){
       Serial.printf("PASSED humidity: %.2f\n",humidity);
     }
     else {
@@ -93,7 +90,7 @@ void Firebase_SET(){
       }
     }
     //soilMoisture
-    if (Firebase.RTDB.setFloat(&fbdo, "Data/Soilmoisture", soilMoisture)){
+    if (Firebase.RTDB.setInt(&fbdo, "Data/Soilmoisture", soilMoisture)){
       Serial.printf("PASSED soilMoisture: %.2f\n",soilMoisture);
     }
     else {
@@ -104,7 +101,7 @@ void Firebase_SET(){
     }
     //Lux
     if (Firebase.RTDB.setInt(&fbdo, "Data/Lux", lux)){
-      Serial.printf("PASSED lux: %u\n", lux);
+      Serial.printf("PASSED lux: %f\n", lux);
     }
     else {
       Serial.println(fbdo.errorReason());
@@ -115,7 +112,7 @@ void Firebase_SET(){
     }
     //pumpstatus
     if (Firebase.RTDB.setString(&fbdo, "Data/Pumpstatus", pumpstatus)){
-      Serial.printf("PASSED pumpstatus: %s\n", pumpstatus);
+      Serial.printf("pumpstatus: %s\n", pumpstatus);
     }
     else {
       Serial.println(fbdo.errorReason());
@@ -149,17 +146,18 @@ void Firebase_SET(){
     Serial.println("Complete");
   }
   //Timestamp
-  if(Time_i >= 12){
+  if(millis() - sendData_timestamp > 3600000){
+    sendData_timestamp = millis();
     Serial.println("Timestamp");
-    if (Firebase.RTDB.setFloat(&fbdo, "Log/"+String(timestamp)+"/Temperature", temperature)){
-    Serial.printf("PASSED temperature: %.2f\n", temperature);
+    if (Firebase.RTDB.setInt(&fbdo, "Log/"+String(timestamp)+"/Temperature", temperature)){
+      Serial.printf("PASSED temperature: %.2f\n", temperature);
     }
     else {
       Serial.println("FAILED");
       Serial.println("REASON: " + fbdo.errorReason());
     }
     //Humidity
-    if (Firebase.RTDB.setFloat(&fbdo, "Log/"+String(timestamp)+"/Humidity", humidity)){
+    if (Firebase.RTDB.setInt(&fbdo, "Log/"+String(timestamp)+"/Humidity", humidity)){
       Serial.printf("PASSED humidity: %.2f\n",humidity);
     }
     else {
@@ -167,7 +165,7 @@ void Firebase_SET(){
       Serial.println("REASON: " + fbdo.errorReason());
     } 
     //soilMoisture
-    if (Firebase.RTDB.setFloat(&fbdo, "Log/"+String(timestamp)+"/Soilmoisture", soilMoisture)){
+    if (Firebase.RTDB.setInt(&fbdo, "Log/"+String(timestamp)+"/Soilmoisture", soilMoisture)){
       Serial.printf("PASSED soilMoisture: %.2f\n",soilMoisture);
     }
     else {
@@ -190,7 +188,7 @@ void Firebase_SET(){
       Serial.println("FAILED");
       Serial.println("REASON: " + fbdo.errorReason());
     }
-    Time_i=0;
+
     Serial.println("Complete log");
   }
 }
@@ -331,8 +329,9 @@ void Firebase_GET(){
     }
   }
 }
-bool BH1750_read( uint16_t addr, uint16_t *lux ){
-  uint16_t buf[2];
+bool BH1750_read( uint8_t addr,  float *lux ){
+  //Serial.println( "BH1750 read)");
+  uint8_t buf[2];
   *lux = 0.0;
   Wire.beginTransmission( addr ); // send the addr/write byte
   // One-shot, Hi-Resolution Mode (1 Lux Resolution) 
@@ -349,7 +348,7 @@ bool BH1750_read( uint16_t addr, uint16_t *lux ){
   } else {
     return false;
   }
-  uint16_t value = buf[0];
+  uint32_t value = buf[0];
   value  = (value << 8) | buf[1];
   value /= 1.2; // convert raw data to Lux
   *lux = value;
@@ -484,8 +483,6 @@ void setup() {
   config.database_url = DATABASE_URL;
   auth.token.uid = USERID;
   Firebase.reconnectWiFi(true);
-  fbdo.setResponseSize(4096);
-  //config.max_token_generation_retry = 12;
    /* Sign up */
   if (Firebase.signUp(&config, &auth, "", "")){
     signupOK = true;
@@ -541,7 +538,7 @@ void loop() {
       sendDataPrevMillis = millis();
       //pumpstatus
       if (Firebase.RTDB.setString(&fbdo, "Data/Pumpstatus", pumpstatus)){
-        Serial.printf("PASSED pumpstatus: %u\n", pumpstatus);
+        //Serial.printf("PASSED pumpstatus: %u\n", pumpstatus);
       }
       else {
         Serial.println(fbdo.errorReason());
@@ -552,7 +549,7 @@ void loop() {
       }
       //lightstatus
       if (Firebase.RTDB.setString(&fbdo, "Data/Lightstatus", lightstatus)){
-        Serial.printf("PASSED: %u\n", lightstatus);
+        //Serial.printf("PASSED: %u\n", lightstatus);
       }
       else {
         Serial.println(fbdo.errorReason());
@@ -563,7 +560,6 @@ void loop() {
       }
     }
     Serial.println("System off");
-    //enterDeepSleep();
     delay(1000);
   }
   else{
@@ -578,6 +574,10 @@ void loop() {
     // Read temperature and humidity from DHT22
     humidity = dht.getHumidity();
     temperature = dht.getTemperature();
+    if (isnan(humidity) || isnan(temperature) ){
+    Serial.println(F("Failed to read from DHT sensor!"));
+    return;
+    }
     soilMoisture = analogRead(soilMoisturePin);
     soilMoisture = map(soilMoisture, 0, 4095, 100, 0);
     if ( BH1750_read(BH1750_ADDR, &lux) ) 
@@ -607,7 +607,9 @@ void loop() {
           return;
         }  
         digitalWrite(relayPumpPin, LOW); // เปิด Relay สำหรับปั้มน้ำ
+        pumpstatus = "1";
         digitalWrite(relayLightPin, HIGH);
+        lightstatus = "0";
         soilMoisture = analogRead(soilMoisturePin);
         soilMoisture = map(soilMoisture, 0, 4095, 100, 0); 
         Firebase_SET();
