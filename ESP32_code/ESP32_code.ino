@@ -132,17 +132,6 @@ void Firebase_SET(){
         Firebase.reconnectWiFi(true);
       }
     }
-    //first_check 
-    if (Firebase.RTDB.setString(&fbdo, "Data/Firstcheck", first_check)){
-      Serial.printf("PASSED first_check: %s\n", first_check);
-    }
-    else {
-      Serial.println(fbdo.errorReason());
-      if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
-        Serial.println("Attempting to reconnect to Firebase...");
-        Firebase.reconnectWiFi(true);
-      }
-    }
     Serial.println("Complete");
   }
   //Timestamp
@@ -616,6 +605,17 @@ void loop() {
         Serial.println( "stage 1" );
         }
         first_check = "1";
+        //first_check 
+        if (Firebase.RTDB.setString(&fbdo, "Data/Firstcheck", first_check)){
+          Serial.printf("PASSED first_check: %s\n", first_check);
+        }
+        else {
+          Serial.println(fbdo.errorReason());
+          if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
+            Serial.println("Attempting to reconnect to Firebase...");
+            Firebase.reconnectWiFi(true);
+          }
+        }
         Serial.println( "stage 2" );
       }
     }
