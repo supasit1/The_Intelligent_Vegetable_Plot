@@ -305,9 +305,9 @@ void loop(){
     localtime_r(&now, &timeinfo);
     configTime(timezone, 0, ntpServer);
    
-    if ((timeinfo.tm_hour == 8 && timeinfo.tm_min == 0 && timeinfo.tm_sec <= 2) || 
-        (timeinfo.tm_hour == 12 && timeinfo.tm_min == 0 && timeinfo.tm_sec <= 2) || 
-        (timeinfo.tm_hour == 16 && timeinfo.tm_min == 0 && timeinfo.tm_sec <= 2)
+    if ((timeinfo.tm_hour == 8 && timeinfo.tm_min == 0 && timeinfo.tm_sec <= 1) || 
+        (timeinfo.tm_hour == 12 && timeinfo.tm_min == 0 && timeinfo.tm_sec <= 1) || 
+        (timeinfo.tm_hour == 16 && timeinfo.tm_min == 0 && timeinfo.tm_sec <= 1)
         &&(now - lastPhotoTimestamp >= PHOTO_INTERVAL))
     {
       Serial.println("Record Photo");
