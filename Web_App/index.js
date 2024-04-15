@@ -2,7 +2,7 @@ import firebaseConfig from './auth_firebase.js';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase,ref,set,get,onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import { getFirestore, getDoc, getDocs,collection,doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getStorage,ref as storageRef, listAll, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+import { getStorage,ref as storageRef, listAll} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const firestore  = getFirestore(app);
@@ -11,7 +11,7 @@ const storage = getStorage(app);
 const strRef = storageRef(storage,'Record/')
 get(FirstcheckRef).then((snapshot)=>{
   const firstcheckValue = snapshot.val();
-  console.log('firstcheckValue get= ',firstcheckValue);
+  //console.log('firstcheckValue get= ',firstcheckValue);
   if (firstcheckValue === "1") {
     window.location.href = 'main.html';
   }
@@ -42,7 +42,7 @@ get(FirstcheckRef).then((snapshot)=>{
     if (presetdata.includes(selectedValue)) {
       showdata(selectedValue);
     }
-    console.log(selectedValue);
+    //console.log(selectedValue);
     return selectedValue;
   });
 
@@ -75,21 +75,20 @@ get(FirstcheckRef).then((snapshot)=>{
     var vegetname;
     if(selectedValue=== "Sun"){
       vegetname ={name:"ต้นอ่อนทานตะวัน"}
-      console.log("vegetname ",vegetname);
+      //console.log("vegetname ",vegetname);
     }
     else if(selectedValue=== "coriander"){
       vegetname ={name:"ผักชี"}
-      console.log("vegetname ",vegetname);
+      //console.log("vegetname ",vegetname);
     }
     else if(selectedValue=== "lettuce"){
       vegetname ={name:"ผักกาดหอม"}
-      console.log("vegetname ",vegetname);
+      //console.log("vegetname ",vegetname);
     }
     else if(selectedValue=== "morningglory "){
       vegetname ={name:"ผักบุ้งจีน"}
-      console.log("vegetname ",vegetname);
+      //console.log("vegetname ",vegetname);
     }
-    // กำหนดค่าข้อมูลในโหนดที่ต้องการ
     const time1Data = {
       hour: parseInt(t1_hour.value, 10),
       minute: parseInt(t1_minute.value, 10)
@@ -112,7 +111,6 @@ get(FirstcheckRef).then((snapshot)=>{
   set(FirstcheckRef, "1");
   window.location.href = 'main.html';
   // บันทึกข้อมูลลงใน Realtime database
-    
 }
 soil.onchange = function() {
   if(this.value > 100){
@@ -287,7 +285,7 @@ t2_hour.onchange = function() {
     this.value = data.time2_h;
   }
 };
-  confirmButton.addEventListener('click', (e) =>{
+confirmButton.addEventListener('click', (e) =>{
     if(selectedValue === ""){
       Swal.fire({
         title: "กรุณาเลือกผักที่ต้องการปลูก!",
@@ -330,7 +328,6 @@ t2_hour.onchange = function() {
           }
       });
   }
-  
 });
 
 logdatabtn.addEventListener('click', (e) =>{
@@ -341,7 +338,7 @@ logdatabtn.addEventListener('click', (e) =>{
     // Get the number of children (log entries)
     var jsonData = snapshot.val();
     numberOfEntries = Object.keys(jsonData).length;
-    console.log(`Number of log entries: ${numberOfEntries}`);
+    //console.log(`Number of log entries: ${numberOfEntries}`);
   });
   if(numberOfEntries <= 0){
     alert('ไม่มีข้อมูล');

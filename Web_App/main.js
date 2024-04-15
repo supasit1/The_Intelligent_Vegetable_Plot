@@ -121,8 +121,6 @@ function PumpButtonClicked() {
   const currentValue = pumpButton.innerText;
   // Toggle the value
   const newValue = currentValue === "Switch\nPump On" ? "Switch\nPump Off" : "Switch\nPump On";
-  pumpButton.classList.remove(newValue === "Switch\nPump Off" ? 'btn-green-500' : 'btn-red-500');
-  pumpButton.classList.add(newValue === "Switch\nPump On" ? 'btn-red-500' : 'btn-green-500');
   // Update the button attribute
   pumpButton.setAttribute("data-value", newValue);
   // Update the button text
@@ -153,8 +151,6 @@ function lightButtonClicked() {
   const currentValue = lightButton.innerText;
   // Toggle the value
   const newValue = currentValue === "Switch\nLight On" ? "Switch\nLight Off" : "Switch\nLight On";
-  lightButton.classList.remove(newValue === "Switch\nLight Off" ? 'btn-green-500' : 'btn-red-500');
-  lightButton.classList.add(newValue === "Switch\nLight On" ? 'btn-red-500' : 'btn-green-500');
   // Update the button attribute
   lightButton.setAttribute("data-value", newValue);
   // Update the button text
@@ -181,13 +177,13 @@ function SetToRDB(){
   set(ref(database, 'Data/Firstcheck'), "0")
 }
 function cancelEdit(){
-  document.getElementById("edit-time").style.display = "none";
+  document.getElementById("edit").style.display = "none";
 }
 function showEditInput() {
-  document.getElementById("edit-time").style.display = "block";
+  document.getElementById("edit").style.display = "block";
 }
 
-function saveEditedTime() {
+function saveEdited() {
   const Time1Ref = ref(database, 'users/Time1');
   const Time2Ref = ref(database, 'users/Time2');
   const soileditRef = ref(database, 'users/MoistureThreshold/value');
@@ -235,10 +231,8 @@ function saveEditedTime() {
         // console.log(time2Data);
         // console.log(soilData);
         // console.log(luxData);
-        document.getElementById("edit-time").style.display = "none";
-    }
-});
-
+        document.getElementById("edit").style.display = "none";
+    }});
 }
 //button
 logdatabtn.addEventListener('click', (e) =>{
@@ -310,7 +304,7 @@ editbtn.addEventListener("click", (e)=>{
 })
 
 savebtn.addEventListener("click", (e)=>{
-  saveEditedTime();
+  saveEdited();
  
 })
 cancelbtn.addEventListener("click", (e)=>{
