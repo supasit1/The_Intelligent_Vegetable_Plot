@@ -31,7 +31,6 @@ int user_moistureThreshold;
 uint16_t user_luxThreshold;
 DHTesp dht;
 Ticker tempTicker;
-
 //set การเชื่อมต่อ Database
 #define DATABASE_URL "https://farmself-1beda-default-rtdb.asia-southeast1.firebasedatabase.app/"
 #define API_KEY "AIzaSyBg-VCiyYgtsqYAViFtxjD6lQmjLHSFdi8"
@@ -51,7 +50,6 @@ String stationPassword= "123456789";
 const char* AP_ssid="ESP32AP";
 const char* AP_password ="1234567890";
 bool check_status_wifi = false;
-
 //set ค่าเวลา
 const char* ntpServer = "asia.pool.ntp.org"; // เซิร์ฟเวอร์ NTP ในภูมิภาคเอเชีย
 int timezone = 7 * 3600;
@@ -62,75 +60,22 @@ struct usertime{
 };
 usertime time1,time2;
 int timestamp;
-
 String first_check ="0";
-
 void Firebase_SET(){
   if (Firebase.ready() && (millis() - sendDataPrevMillis > 1000 || sendDataPrevMillis == 0)){
     sendDataPrevMillis = millis();
-    //Temperature
-    if (Firebase.RTDB.setInt(&fbdo, "Data/Temperature", temperature)){
-      Serial.printf("PASSED temperature: %.2f\n", temperature);
-    }
-    else {
-      Serial.println(fbdo.errorReason());
-      if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
-        Serial.println("Attempting to reconnect to Firebase...");
-        Firebase.reconnectWiFi(true);
-      }
-    }
-    //Humidity
-    if (Firebase.RTDB.setInt(&fbdo, "Data/Humidity", humidity)){
-      Serial.printf("PASSED humidity: %.2f\n",humidity);
-    }
-    else {
-      Serial.println(fbdo.errorReason());
-      if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
-      Firebase.reconnectWiFi(true); 
-      }
-    }
-    //soilMoisture
-    if (Firebase.RTDB.setInt(&fbdo, "Data/Soilmoisture", soilMoisture)){
-      Serial.printf("PASSED soilMoisture: %.2f\n",soilMoisture);
-    }
-    else {
-      Serial.println(fbdo.errorReason());
-      if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
-        Firebase.reconnectWiFi(true);
-      }
-    }
-    //Lux
-    if (Firebase.RTDB.setInt(&fbdo, "Data/Lux", lux)){
-      Serial.printf("PASSED lux: %f\n", lux);
-    }
-    else {
-      Serial.println(fbdo.errorReason());
-      if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
-        Serial.println("Attempting to reconnect to Firebase...");
-        Firebase.reconnectWiFi(true);
-      }
-    }
-    //pumpstatus
-    if (Firebase.RTDB.setString(&fbdo, "Data/Pumpstatus", pumpstatus)){
-      Serial.printf("pumpstatus: %s\n", pumpstatus);
-    }
-    else {
-      Serial.println(fbdo.errorReason());
-      if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
-        Serial.println("Attempting to reconnect to Firebase...");
-        Firebase.reconnectWiFi(true);
-      }
-    }
-    //lightstatus
-    if (Firebase.RTDB.setString(&fbdo, "Data/Lightstatus", lightstatus)){
-      Serial.printf("PASSED lightstatus: %s\n", lightstatus);
-    }
-    else {
-      Serial.println(fbdo.errorReason());
-      if(fbdo.errorReason() =="token is not ready (revoked or expired)"){
-        Serial.println("Attempting to reconnect to Firebase...");
-        Firebase.reconnectWiFi(true);
-      }
+    FirebaseJson json;
+    json.set("/Humidity/", humidity);
+    json.set("/Temperature/", temperature);
+    json.set("/Soilmoisture/", soilMoisture);
+    json.set("/Lux/", lux);
+    json.set("/Pumpstatus/",pumpstatus);
+    json.set("/Lightstatus/",lightstatus);
+    if (Firebase.RTDB.setJSON(&fbdo, "/Data",&json)) {
+      //Serial.println("Data sent to Firebase");
+    } else {
+      Serial.println("Failed to send data to Firebase");
+      Serial.println("Error: " +fbdo.errorReason());
     }
     Serial.println("Complete");
   }
@@ -138,6 +83,7 @@ void Firebase_SET(){
   if(millis() - sendData_timestamp > 3600000){
     sendData_timestamp = millis();
     Serial.println("Timestamp");
+
     if (Firebase.RTDB.setInt(&fbdo, "Log/"+String(timestamp)+"/Temperature", temperature)){
       Serial.printf("PASSED temperature: %.2f\n", temperature);
     }
@@ -177,7 +123,6 @@ void Firebase_SET(){
       Serial.println("FAILED");
       Serial.println("REASON: " + fbdo.errorReason());
     }
-
     Serial.println("Complete log");
   }
 }
@@ -569,6 +514,7 @@ void loop() {
     }
     soilMoisture = analogRead(soilMoisturePin);
     soilMoisture = map(soilMoisture, 0, 4095, 100, 0);
+    //Serial.println(soilMoisture);
     if ( BH1750_read(BH1750_ADDR, &lux) ) 
     {
       // ควบคุม Relay สำหรับไฟ
@@ -622,11 +568,9 @@ void loop() {
     if ((soilMoisture <= user_moistureThreshold) && 
     (user_pumpstatus == "1") && 
     ((timeinfo.tm_hour == time1.user_hr && 
-      timeinfo.tm_min >= time1.user_min && 
-      timeinfo.tm_min <= time1.user_min + 2) || 
+      timeinfo.tm_min >= time1.user_min ) || 
      (timeinfo.tm_hour == time2.user_hr && 
-      timeinfo.tm_min >= time2.user_min && 
-      timeinfo.tm_min <= time2.user_min + 2)))
+      timeinfo.tm_min >= time2.user_min )))
     {
       digitalWrite(relayPumpPin, LOW); // เปิด Relay สำหรับปั้มน้ำ
       pumpstatus = "1";//pump working
