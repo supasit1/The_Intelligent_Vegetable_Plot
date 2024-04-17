@@ -9,6 +9,7 @@ const imagesPerPage = 30;
 let currentPage = 1;
 let totalImages =0;
 let totalPages =0;
+let nameimg = [];
 const totalPagesElement = document.getElementById('totalPages');
 const currentPageElement = document.getElementById('currentPage');
 const prevPageButton = document.getElementById('prevPage');
@@ -108,11 +109,11 @@ nextPageButton.addEventListener('click', function() {
 mainbtn.addEventListener('click', function() {
     window.location.href = 'main.html';
 });
-const DownloadButtonElement = document.getElementById('download-button');
+const DownloadButtonElement = document.getElementById('downloadcsv');
 DownloadButtonElement.addEventListener('click', (e) => {
   let timerInterval;
   Swal.fire({
-    title: "คุณจะทำดาวน์โหลดหรือไม่?",
+    title: "คุณจะทำการดาวน์โหลดหรือไม่?",
     icon: "warning",
     showCancelButton: true,
     cancelButtonColor: "#d33",
@@ -137,7 +138,7 @@ DownloadButtonElement.addEventListener('click', (e) => {
       Swal.fire({
         title: "กำลังจัดเตรียมไฟล์",
         html: "โปรดรอสักครู่!!!",
-        timer: 2000,
+        timer: 1000,
         timerProgressBar: true,
         didOpen: () => {
           Swal.showLoading();
@@ -157,6 +158,7 @@ DownloadButtonElement.addEventListener('click', (e) => {
     }
   });
 });
+
 function exportToCSV() {
   // Initialize an empty array to store image data
   let imageData = [];
@@ -168,8 +170,8 @@ function exportToCSV() {
           return getDownloadURL(imageRef).then(url => {
               // Extract timestamp from imageRef name
               const timestamp = parseInt(imageRef.name.split('.')[0]);
-              const name = imageRef.name
-              return { url, timestamp,name };
+              const name = imageRef.name;
+              return { url, timestamp, name };
           });
       });
 
@@ -218,4 +220,95 @@ function generateCSV(imageData) {
   document.body.appendChild(link);
   // Trigger the click event to initiate the download
   link.click();
+}
+
+
+
+const downloadimg = document.getElementById('downloadimg');
+downloadimg.addEventListener('click', function() {
+  let timerInterval;
+  Swal.fire({
+    title: "คุณจะทำการดาวน์โหลดหรือไม่?",
+    icon: "warning",
+    showCancelButton: true,
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes",
+    cancelButtonText: "No",
+    showClass: {
+      popup: `
+        animate__animated
+        animate__fadeInUp
+        animate__faster
+      `
+    },
+    hideClass: {
+      popup: `
+        animate__animated
+        animate__fadeOutDown
+        animate__faster
+      `
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: "กำลังจัดเตรียมไฟล์",
+        html: "โปรดรอสักครู่!!!",
+        timer: 2000,
+        timerProgressBar: true,
+        didOpen: () => {
+          Swal.showLoading();
+          const timer = Swal.getPopup().querySelector("b");
+          timerInterval = setInterval(() => {
+            timer.textContent =`${Swal.getTimerLeft()}`;
+          }, 10000);
+        },
+        willClose: () => {
+          clearInterval(timerInterval);
+        }
+      }).then(() => {
+        Swal.fire("Download!", "", "success");
+        //console.log("downloadButtonElement")
+        exportToZip()
+      });
+    }
+  });
+});
+function exportToZip(){
+  const zip = new JSZip();
+  listAll(storageRef, '/')
+  .then((result) => {
+      const promises = result.items.map((item) => {
+          return getDownloadURL(item).then((url) => {
+            const timestamp = parseInt(item.name.split('.')[0]);
+            const name = epochToDateTime(timestamp);
+            nameimg.push((name.toString())+".jpg");
+            return fetch(url).then((response) => response.blob());
+          });
+      });
+      Promise.all(promises)
+      .then((blobs) => {
+          blobs.sort((a, b) => a.timestamp - b.timestamp);
+          nameimg.sort();
+          blobs.forEach((blob, index) => {
+            zip.file(nameimg[index], blob);
+          });
+          return zip.generateAsync({ type: "blob",compression:'DEFLATE'});
+      })
+      .then((content) => {
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          const fileName = 'Log_Img.zip';
+          a.href = window.URL.createObjectURL(content);
+          a.download = fileName;
+          a.click();
+          document.body.removeChild(a);
+      })
+      .catch((error) => {
+          console.error("Error:", error);
+      });
+  })
+  .catch((error) => {
+      console.error("Error:", error);
+  });
 }
