@@ -71,6 +71,13 @@ var lightstatus = document.getElementById("lightstatus");
 var pumpstatus = document.getElementById("pumpstatus")
 
 //set data
+const Streaming = ref(database, "Streaming");
+onValue(Streaming, (snapshot) => {
+  const data = snapshot.val();
+  image.src = data; // Assuming data is directly the URL
+});
+
+
 const dataRef = ref(database, "Data");
 onValue(dataRef, (snapshot) => {
   const data = snapshot.val();
@@ -78,7 +85,6 @@ onValue(dataRef, (snapshot) => {
   temperatureElement.innerText = `${data.Temperature}`;
   lux.innerText = `${data.Lux}`;
   soilmoisture.innerText = `${data.Soilmoisture}`;
-  image.src = `${data.Streaming}`;
   pumpstatus.innerText =`${data.Pumpstatus}`==="0" ?"System Off":"Pump working" ;
   lightstatus.innerText =`${data.Lightstatus}`==="0"?"System Off":"Light working";
 });
