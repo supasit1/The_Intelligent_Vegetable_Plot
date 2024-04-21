@@ -92,12 +92,12 @@ onValue(dataRef, (snapshot) => {
 const usersRef = ref(database, "users");
 onValue(usersRef, (snapshot) => {
   const data = snapshot.val();
-  const paddedHour1 = pad(data.Time1.hour);
-  const paddedMinute1 = pad(data.Time1.minute);
-  const paddedHour2 = pad(data.Time2.hour);
-  const paddedMinute2 = pad(data.Time2.minute);
-  t1.innerHTML = `${paddedHour1}:${paddedMinute1}`;
-  t2.innerHTML = `${paddedHour2}:${paddedMinute2}`;
+  const padHour1 = pad(data.Time1.hour);
+  const padMinute1 = pad(data.Time1.minute);
+  const padHour2 = pad(data.Time2.hour);
+  const padMinute2 = pad(data.Time2.minute);
+  t1.innerHTML = `${padHour1}:${padMinute1}`;
+  t2.innerHTML = `${padHour2}:${padMinute2}`;
   t1_hour.value = data.Time1.hour;
   t2_hour.value = data.Time2.hour;
   t1_minute.value = data.Time1.minute;
@@ -184,6 +184,7 @@ function SetToRDB(){
 }
 function cancelEdit(){
   document.getElementById("edit").style.display = "none";
+  window.location.reload();
 }
 function showEditInput() {
   document.getElementById("edit").style.display = "block";
@@ -320,9 +321,15 @@ cancelbtn.addEventListener("click", (e)=>{
 t1_minute.onchange = function() {
   const usersRef = ref(database, "users");
   var minute = parseInt(this.value);
+  var value;
+  onValue(usersRef, (snapshot) => {
+    const data = snapshot.val();
+    value = data.Time1.minute;
+    value = parseInt(value)
+  });
   if (minute > 59) {
     Swal.fire({
-      title: "ชั่วโมงต้องไม่เกิน 60",
+      title: "นาทีต้องไม่เกิน 59",
       icon: "error",
       showClass: {
           popup: "animate__animated animate__fadeInUp animate__faster"
@@ -331,10 +338,7 @@ t1_minute.onchange = function() {
           popup: "animate__animated animate__fadeOutDown animate__faster"
       }
     });
-    onValue(usersRef, (snapshot) => {
-      const data = snapshot.val();
-      this.value = data.Time1.minute;
-    });
+    this.value = value;
   }
   if(this.value===""){
     Swal.fire({
@@ -347,18 +351,34 @@ t1_minute.onchange = function() {
           popup: "animate__animated animate__fadeOutDown animate__faster"
       }
   });
-    onValue(usersRef, (snapshot) => {
-      const data = snapshot.val();
-      this.value = data.Time1.minute;
+  this.value = value;
+  }
+  else if (minute < 0) {
+    Swal.fire({
+      title: "นาทีต้องไม่น้อยกว่า 0",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
     });
+    this.value = value;
   }
 };
 t2_minute.onchange = function() {
   var minute = parseInt(this.value);
   const usersRef = ref(database, "users");
+  var value ;
+  onValue(usersRef, (snapshot) => {
+    const data = snapshot.val();
+    value = data.Time2.minute;
+    value = parseInt(value)
+  });
   if (minute > 59) {
     Swal.fire({
-      title: "ชั่วโมงต้องไม่เกิน 60",
+      title: "นาทีต้องไม่เกิน 59",
       icon: "error",
       showClass: {
           popup: "animate__animated animate__fadeInUp animate__faster"
@@ -367,10 +387,7 @@ t2_minute.onchange = function() {
           popup: "animate__animated animate__fadeOutDown animate__faster"
       }
     });
-      onValue(usersRef, (snapshot) => {
-        const data = snapshot.val();
-        this.value = data.Time2.minute;
-      });
+    this.value = value;
   }
   if(this.value===""){
     Swal.fire({
@@ -383,18 +400,32 @@ t2_minute.onchange = function() {
           popup: "animate__animated animate__fadeOutDown animate__faster"
       }
     });
-    onValue(usersRef, (snapshot) => {
-      const data = snapshot.val();
-      this.value = data.Time2.minute;
+      this.value = value;
+  }else if (minute < 0) {
+    Swal.fire({
+      title: "นาทีต้องไม่น้อยกว่า 0",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
     });
+    this.value = parseInt(value);
   }
 };
 t1_hour.onchange = function() {
   var hour = parseInt(this.value);
   const usersRef = ref(database, "users");
-  if (hour > 23) {
+  var value ;
+  onValue(usersRef, (snapshot) => {
+    const data = snapshot.val();
+    value = parseInt(data.Time1.hour);
+  });
+  if (hour < 0) {
     Swal.fire({
-      title: "ชั่วโมงต้องไม่เกิน 23",
+      title: "ชั่วโมงต้องไม่น้อยกว่า 0",
       icon: "error",
       showClass: {
           popup: "animate__animated animate__fadeInUp animate__faster"
@@ -403,10 +434,7 @@ t1_hour.onchange = function() {
           popup: "animate__animated animate__fadeOutDown animate__faster"
       }
     });
-    onValue(usersRef, (snapshot) => {
-      const data = snapshot.val();
-      this.value = data.Time1.hour;
-    });
+    this.value = parseInt(value)
   }
   if(this.value===""){
     Swal.fire({
@@ -419,15 +447,43 @@ t1_hour.onchange = function() {
           popup: "animate__animated animate__fadeOutDown animate__faster"
       }
     });
-    onValue(usersRef, (snapshot) => {
-      const data = snapshot.val();
-      this.value = data.Time1.hour;
+    this.value = value;
+}else if (hour > 23) {
+    Swal.fire({
+      title: "ชั่วโมงต้องไม่เกิน 23",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
     });
+    this.value = parseInt(value);
+}else if(this.value===""){
+    Swal.fire({
+      title: "ห้ามใส่ค่าว่าง!",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+    });
+    this.value = parseInt(value);
   }
 };
+
 t2_hour.onchange = function() {
   var hour = parseInt(this.value);
   const usersRef = ref(database, "users");
+  var value ;
+  onValue(usersRef, (snapshot) => {
+    const data = snapshot.val();
+    value = data.Time2.hour;
+    value = parseInt(value);
+  });
   if (hour > 23) {
     Swal.fire({
       title: "ชั่วโมงต้องไม่เกิน 23",
@@ -439,12 +495,9 @@ t2_hour.onchange = function() {
           popup: "animate__animated animate__fadeOutDown animate__faster"
       }
     });
-    onValue(usersRef, (snapshot) => {
-      const data = snapshot.val();
-      this.value = data.Time2.hour;
-    });
+    this.value = parseInt(value);
   }
-  if(this.value===""){
+  else if(this.value===""){
     Swal.fire({
       title: "ห้ามใส่ค่าว่าง!",
       icon: "error",
@@ -455,10 +508,20 @@ t2_hour.onchange = function() {
           popup: "animate__animated animate__fadeOutDown animate__faster"
       }
     });
-    onValue(usersRef, (snapshot) => {
-      const data = snapshot.val();
-      this.value = data.Time2.hour;
+    this.value = value;
+  }
+  else if (hour < 0) {
+    Swal.fire({
+      title: "ชั่วโมงต้องไม่น้อยกว่า 0",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
     });
+    this.value = parseInt(value);
   }
 };
 soiledit.onchange = function() {
@@ -492,10 +555,7 @@ soiledit.onchange = function() {
           popup: "animate__animated animate__fadeOutDown animate__faster"
       }
     });
-    onValue(usersRef, (snapshot) => {
-      const data = snapshot.val();
       this.value = value;
-    });
   }
 };
 luxedit.onchange = function() {
@@ -521,6 +581,18 @@ luxedit.onchange = function() {
   if(this.value===""){
     Swal.fire({
       title: "ห้ามใส่ค่าว่าง!",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+    });
+    this.value =  value;
+  }else if (this.value < 0) {
+    Swal.fire({
+      title: "กรุณาใส่ค่ามากกว่า 0",
       icon: "error",
       showClass: {
           popup: "animate__animated animate__fadeInUp animate__faster"

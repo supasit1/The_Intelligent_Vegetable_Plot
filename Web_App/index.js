@@ -126,7 +126,7 @@ soil.onchange = function() {
     });
     this.value = data.soilmoisture;
   }
-  if(this.value===""){
+  else if(this.value===""){
     Swal.fire({
       title: "ห้ามใส่ค่าว่าง!",
       icon: "error",
@@ -155,7 +155,7 @@ lux.onchange = function() {
     });
     this.value =  data.lux;
   }
-  if(this.value===""){
+  else if(this.value===""){
     Swal.fire({
       title: "ห้ามใส่ค่าว่าง!",
       icon: "error",
@@ -168,12 +168,25 @@ lux.onchange = function() {
   });
     this.value =  data.lux;
   }
+  else if (this.value < 0) {
+    Swal.fire({
+      title: "กรุณาใส่ค่ามากกว่า 0",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+    });
+    this.value =  data.lux;
+  }
 };
 t1_minute.onchange = function() {
   var minute = parseInt(this.value);
   if (minute > 59) {
     Swal.fire({
-      title: "ชั่วโมงต้องไม่เกิน 60!",
+      title: "นาทีต้องไม่เกิน 59",
       icon: "error",
       showClass: {
           popup: "animate__animated animate__fadeInUp animate__faster"
@@ -184,7 +197,7 @@ t1_minute.onchange = function() {
   });
       this.value =  data.time1_m; // เคลียร์ค่าที่ผู้ใช้ป้อน
   }
-  if(this.value===""){
+  else if(this.value===""){
     Swal.fire({
       title: "ห้ามใส่ค่าว่าง!",
       icon: "error",
@@ -196,13 +209,25 @@ t1_minute.onchange = function() {
       }
   });
     this.value = data.time1_m;
+  }else if (this.value < 0) {
+    Swal.fire({
+      title: "นาทีต้องไม่น้อยกว่า 0",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+    });
+    this.value =  data.time1_m;
   }
 };
 t2_minute.onchange = function() {
   var minute = parseInt(this.value);
   if (minute > 59) {
     Swal.fire({
-      title: "ชั่วโมงต้องไม่เกิน 60!",
+      title: "นาทีต้องไม่เกิน 59",
       icon: "error",
       showClass: {
           popup: "animate__animated animate__fadeInUp animate__faster"
@@ -213,7 +238,7 @@ t2_minute.onchange = function() {
   });
       this.value = data.time2_m; // เคลียร์ค่าที่ผู้ใช้ป้อน
   }
-  if(this.value===""){
+  else if(this.value===""){
     Swal.fire({
       title: "ห้ามใส่ค่าว่าง!",
       icon: "error",
@@ -225,13 +250,25 @@ t2_minute.onchange = function() {
       }
   });
     this.value = data.time2_m;
+  }else if (this.value < 0) {
+    Swal.fire({
+      title: "นาทีต้องไม่น้อยกว่า 0",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+    });
+    this.value =  data.time2_m;
   }
 };
 t1_hour.onchange = function() {
   var hour = parseInt(this.value);
   if (hour > 23) {
     Swal.fire({
-      title: "ชั่วโมงต้องไม่เกิน 23!",
+      title: "ชั่วโมงต้องไม่เกิน 23",
       icon: "error",
       showClass: {
           popup: "animate__animated animate__fadeInUp animate__faster"
@@ -242,7 +279,7 @@ t1_hour.onchange = function() {
   });
       this.value = data.time1_h; // เคลียร์ค่าที่ผู้ใช้ป้อน
   }
-  if(this.value===""){
+  else if(this.value===""){
     Swal.fire({
       title: "ห้ามใส่ค่าว่าง!",
       icon: "error",
@@ -254,13 +291,25 @@ t1_hour.onchange = function() {
       }
   });
     this.value = data.time1_h;
+  }else if (this.value < 0) {
+    Swal.fire({
+      title: "ชั่วโมงต้องไม่น้อยกว่า 0",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+    });
+    this.value =  data.time1_h;
   }
 };
 t2_hour.onchange = function() {
   var hour = parseInt(this.value);
   if (hour > 23) {
     Swal.fire({
-      title: "ชั่วโมงต้องไม่เกิน 23!",
+      title: "ชั่วโมงต้องไม่เกิน 23",
       icon: "error",
       showClass: {
           popup: "animate__animated animate__fadeInUp animate__faster"
@@ -271,7 +320,7 @@ t2_hour.onchange = function() {
   });
   this.value = data.time2_h; // เคลียร์ค่าที่ผู้ใช้ป้อน
   }
-  if(this.value===""){
+  else if(this.value===""){
     Swal.fire({
       title: "ห้ามใส่ค่าว่าง!",
       icon: "error",
@@ -283,6 +332,18 @@ t2_hour.onchange = function() {
       }
   });
     this.value = data.time2_h;
+  }else if (this.value < 0) {
+    Swal.fire({
+      title: "ชั่วโมงต้องไม่น้อยกว่า 0",
+      icon: "error",
+      showClass: {
+          popup: "animate__animated animate__fadeInUp animate__faster"
+      },
+      hideClass: {
+          popup: "animate__animated animate__fadeOutDown animate__faster"
+      }
+    });
+    this.value =  data.time2_h;
   }
 };
 confirmButton.addEventListener('click', (e) =>{
